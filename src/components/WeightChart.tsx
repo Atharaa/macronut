@@ -1,13 +1,14 @@
 "use client";
 
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  ReferenceLine,
 } from "recharts";
 
 export interface WeightPoint {
@@ -15,48 +16,82 @@ export interface WeightPoint {
   weightKg: number;
 }
 
-export function WeightChart({ data }: { data: WeightPoint[] }) {
+export function WeightChart({ data, target }: { data: WeightPoint[]; target?: number | null }) {
   if (data.length === 0) {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100">
+      <div className="flex h-56 flex-col items-center justify-center rounded-3xl bg-white text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100">
+        <span className="mb-1 text-3xl">📈</span>
         Aucune pesée pour l'instant.
         <br />
         Ajoute ton premier poids ci-dessous.
       </div>
     );
   }
+
+  const weights = data.map((d) => d.weightKg);
+  const lo = Math.min(...weights, ...(target != null ? [target] : []));
+  const hi = Math.max(...weights, ...(target != null ? [target] : []));
+  const pad = Math.max(0.5, (hi - lo) * 0.15);
+
   return (
-    <div className="h-64 w-full rounded-2xl bg-white p-4 pr-3 shadow-sm ring-1 ring-neutral-100">
+    <div className="h-64 w-full rounded-3xl bg-white p-4 pr-3 shadow-sm ring-1 ring-neutral-100">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -16 }}>
           <defs>
-            <linearGradient id="weightStroke" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="wStroke" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#10b981" />
               <stop offset="100%" stopColor="#0d9488" />
             </linearGradient>
+            <linearGradient id="wFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+              <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+            </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-          <YAxis
-            domain={["dataMin - 1", "dataMax + 1"]}
+          <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" vertical={false} />
+          <XAxis
+            dataKey="date"
             tick={{ fontSize: 11, fill: "#94a3b8" }}
             axisLine={false}
             tickLine={false}
+            minTickGap={24}
+          />
+          <YAxis
+            domain={[Math.floor(lo - pad), Math.ceil(hi + pad)]}
+            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            axisLine={false}
+            tickLine={false}
+            width={40}
           />
           <Tooltip
-            contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12 }}
-            labelStyle={{ color: "#64748b" }}
+            contentStyle={{
+              borderRadius: 14,
+              border: "none",
+              boxShadow: "0 8px 24px rgba(15,23,42,.12)",
+              fontSize: 12,
+            }}
+            labelStyle={{ color: "#64748b", fontWeight: 600 }}
+            formatter={(v) => [`${v} kg`, "Poids"]}
           />
-          <Line
+          {target != null && (
+            <ReferenceLine
+              y={target}
+              stroke="#f59e0b"
+              strokeDasharray="5 5"
+              strokeWidth={1.5}
+              label={{ value: `objectif ${target} kg`, position: "insideTopRight", fontSize: 10, fill: "#d97706" }}
+            />
+          )}
+          <Area
             type="monotone"
             dataKey="weightKg"
-            name="Poids (kg)"
-            stroke="url(#weightStroke)"
+            stroke="url(#wStroke)"
             strokeWidth={3}
-            dot={{ r: 3, fill: "#10b981", strokeWidth: 0 }}
-            activeDot={{ r: 5 }}
+            fill="url(#wFill)"
+            dot={{ r: 3, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
+            activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
+            animationDuration={600}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

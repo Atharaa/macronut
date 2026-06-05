@@ -21,6 +21,13 @@ export default async function PoidsPage() {
   const first = entries[0];
   const delta = latest && first ? latest.weightKg - first.weightKg : null;
 
+  const goal = user.goal;
+  let target: number | null = null;
+  if (first && goal?.targetKg) {
+    if (goal.type === "loss") target = Math.round((first.weightKg - goal.targetKg) * 10) / 10;
+    else if (goal.type === "gain") target = Math.round((first.weightKg + goal.targetKg) * 10) / 10;
+  }
+
   return (
     <main className="space-y-4 p-4">
       <div className="flex items-end justify-between px-1">
@@ -37,7 +44,7 @@ export default async function PoidsPage() {
           </div>
         )}
       </div>
-      <WeightChart data={data} />
+      <WeightChart data={data} target={target} />
       <WeightForm />
     </main>
   );
