@@ -54,13 +54,13 @@ describe("computeTargetKcal", () => {
 });
 
 describe("computeMacros", () => {
-  it("protéines ~1,8 g/kg, lipides ~0,8 g/kg, fibres ~14 g/1000 kcal, glucides = reste", () => {
+  it("protéines 1,8 g/kg, lipides 25% des kcal, fibres ~14 g/1000 kcal, glucides = reste", () => {
     const m = computeMacros(2000, 80);
     expect(m.proteinG).toBe(144); // 1.8*80
-    expect(m.fatG).toBe(64); // 0.8*80
+    expect(m.fatG).toBe(56); // round(0.25*2000/9)
     expect(m.fiberG).toBe(28); // 14*2
-    // reste kcal en glucides : (2000 - 144*4 - 64*9)/4 = (2000-576-576)/4 = 212
-    expect(m.carbG).toBe(212);
+    // reste kcal en glucides : (2000 - 144*4 - 56*9)/4 = (2000-576-504)/4 = 230
+    expect(m.carbG).toBe(230);
   });
   it("ne renvoie pas de glucides négatifs", () => {
     const m = computeMacros(800, 90);
@@ -103,7 +103,7 @@ describe("computeTargets (intégration)", () => {
     const tdee = 1780 * 1.55;
     expect(t.tdee).toBeCloseTo(tdee, 0);
     expect(t.targetKcal).toBe(Math.round(tdee) - 550);
-    expect(t.proteinG).toBe(144);
-    expect(t.fatG).toBe(64);
+    expect(t.proteinG).toBe(144); // 1.8*80
+    expect(t.fatG).toBe(Math.round((0.25 * t.targetKcal) / 9));
   });
 });

@@ -68,9 +68,14 @@ export interface Macros {
   fiberG: number;
 }
 
+// Répartition « priorité protéines » : protéines selon le poids (muscle/satiété),
+// lipides au plancher hormonal (~25 % des kcal), glucides = variable d'ajustement.
+const PROTEIN_G_PER_KG = 1.8;
+const FAT_KCAL_RATIO = 0.25;
+
 export function computeMacros(targetKcal: number, weightKg: number): Macros {
-  const proteinG = Math.round(1.8 * weightKg);
-  const fatG = Math.round(0.8 * weightKg);
+  const proteinG = Math.round(PROTEIN_G_PER_KG * weightKg);
+  const fatG = Math.round((FAT_KCAL_RATIO * targetKcal) / 9);
   const fiberG = Math.round((14 * targetKcal) / 1000);
   const remainingKcal = targetKcal - proteinG * 4 - fatG * 9;
   const carbG = Math.max(0, Math.round(remainingKcal / 4));
