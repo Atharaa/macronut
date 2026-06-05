@@ -40,10 +40,13 @@ export async function addFoodsFromText(
   const needsInput: string[] = [];
 
   for (const item of parsed) {
-    let ref = findBestMatch(item.name, refs);
+    // Un produit perso/maison ne peut correspondre qu'à TES propres références
+    // (manuelles), jamais à un aliment CIQUAL/IA au hasard.
+    const pool = item.isGeneric ? refs : refs.filter((r) => r.source === "manual");
+    let ref = findBestMatch(item.name, pool);
 
-    // Absent de la base : on n'estime que les aliments courants. Les produits
-    // perso/maison (isGeneric === false) restent à compléter par l'utilisateur.
+    // Absent : on n'estime que les aliments courants. Les produits perso/maison
+    // (isGeneric === false) restent à compléter par l'utilisateur.
     if (!ref && item.isGeneric) {
       const est = await estimateFoodMacros(item.name);
       if (est) {

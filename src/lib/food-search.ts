@@ -51,6 +51,7 @@ export function findBestMatch<T extends NamedFood>(query: string, foods: T[]): T
 
   let best: T | null = null;
   let bestScore = 0;
+  let bestUnmatched = Infinity;
   let bestSize = Infinity;
 
   for (const food of foods) {
@@ -63,9 +64,19 @@ export function findBestMatch<T extends NamedFood>(query: string, foods: T[]): T
     const contentMatched = matched.filter((t) => !QUALIFIERS.has(t)).length;
     if (contentMatched === 0) continue;
     const score = matched.length;
-    if (score > bestScore || (score === bestScore && foodTokens.length < bestSize)) {
+    // Mots distinctifs de l'aliment NON présents dans la requête : on les pénalise
+    // (ex. "Couscous au poulet" ajoute "couscous" pour une recherche "poulet").
+    const contentTokens = foodTokens.filter((t) => !QUALIFIERS.has(t)).length;
+    const unmatched = contentTokens - contentMatched;
+
+    const better =
+      score > bestScore ||
+      (score === bestScore && unmatched < bestUnmatched) ||
+      (score === bestScore && unmatched === bestUnmatched && foodTokens.length < bestSize);
+    if (better) {
       best = food;
       bestScore = score;
+      bestUnmatched = unmatched;
       bestSize = foodTokens.length;
     }
   }

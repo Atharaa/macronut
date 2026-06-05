@@ -13,6 +13,7 @@ const foods = [
   { name: "Laitue iceberg, crue" },
   { name: "Salade César au poulet (salade verte, fromage, croûtons, sauce), préemballée" },
   { name: "Jambon de poulet ou Blanc de poulet en tranche" },
+  { name: "Couscous au poulet" },
 ];
 
 describe("normalize", () => {
@@ -61,6 +62,10 @@ describe("findBestMatch", () => {
 
   it("le poulet reste un mot distinctif (non pénalisé)", () => {
     expect(findBestMatch("blanc de poulet grillé", foods)?.name).toBe("Blanc de poulet grillé");
+  });
+
+  it("'poulet' → blanc de poulet, pas un plat composé (couscous)", () => {
+    expect(findBestMatch("150g de poulet", foods)?.name).toBe("Blanc de poulet grillé");
   });
 
   it("'blanc de poulet en tranches' → produit charcuterie, pas le grillé", () => {
