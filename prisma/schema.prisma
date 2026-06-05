@@ -96,6 +96,7 @@ model ActivityEntry {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   date          DateTime
   type          ActivityType
+  name          String?
   value         Float
   estimatedKcal Int
 

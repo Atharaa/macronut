@@ -42,7 +42,7 @@ export default async function ActivitePage() {
                 <Icon size={18} strokeWidth={2.2} />
               </span>
               <span className="flex-1 text-sm font-medium text-neutral-700">
-                {isSteps ? `${e.value} pas` : `${e.value} min de sport`}
+                {isSteps ? `${e.value} pas` : `${e.name ?? "Sport"} · ${e.value} min`}
               </span>
               <span className="text-sm font-semibold text-orange-600">+{e.estimatedKcal} kcal</span>
             </li>

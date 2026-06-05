@@ -84,7 +84,7 @@ export default async function JourneePage() {
               <div className="text-right text-xs text-white/75">
                 <div>{r(consumed.kcal)} consommées</div>
                 <div>objectif {goal!.targetKcal}</div>
-                {activityBonus > 0 && <div>+{activityBonus} activité (50%)</div>}
+                {activityBonus > 0 && <div>+{activityBonus} activité</div>}
               </div>
             </div>
             <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/25">

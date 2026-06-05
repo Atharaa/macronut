@@ -12,9 +12,9 @@ export type GoalType = "loss" | "gain" | "maintain";
 const KCAL_PER_KG = 7700;
 const KCAL_FLOOR = 1200;
 
-// Part des calories de sport réintégrée au budget du jour. Les dépenses sportives
-// (surtout cardio) sont souvent surestimées : on n'en reprend que la moitié.
-export const ACTIVITY_REINTEGRATION = 0.5;
+// Part des calories de sport réintégrée au budget du jour. La dépense est déjà
+// calculée en NET (MET − 1), donc réaliste : on la reprend en entier.
+export const ACTIVITY_REINTEGRATION = 1;
 
 const ACTIVITY_FACTORS: Record<ActivityLevel, number> = {
   sedentary: 1.2,
@@ -106,21 +106,45 @@ export function estimateWeeksToGoal(
 export type ActivityType = "sport" | "steps";
 
 const KCAL_PER_STEP = 0.04;
-const SPORT_MET = 6; // intensité modérée par défaut
+const DEFAULT_SPORT_MET = 6;
+
+// Intensités (MET) d'après le Compendium of Physical Activities (approximations).
+export const SPORTS: { key: string; label: string; met: number }[] = [
+  { key: "muscu", label: "Musculation", met: 5 },
+  { key: "velo", label: "Vélo", met: 7.5 },
+  { key: "course", label: "Course à pied", met: 9.8 },
+  { key: "marche_rapide", label: "Marche rapide", met: 4.3 },
+  { key: "natation", label: "Natation", met: 7 },
+  { key: "hiit", label: "HIIT", met: 8 },
+  { key: "corde", label: "Corde à sauter", met: 11 },
+  { key: "elliptique", label: "Elliptique / rameur", met: 5.5 },
+];
+
+export function sportMet(key: string | null | undefined): number {
+  return SPORTS.find((s) => s.key === key)?.met ?? DEFAULT_SPORT_MET;
+}
+
+export function sportLabel(key: string | null | undefined): string {
+  return SPORTS.find((s) => s.key === key)?.label ?? "Sport";
+}
 
 /**
- * Estime la dépense énergétique d'une activité.
+ * Estime la dépense énergétique NETTE d'une activité (la dépense « en plus » du repos,
+ * pour ne pas surestimer).
  * - steps : value = nombre de pas.
- * - sport : value = durée en minutes (utilise le poids et un MET modéré).
+ * - sport : value = durée en minutes ; kcal = min × (MET − 1) × 3,5 × poids / 200.
+ *   Le « − 1 » retranche le métabolisme de repos déjà compté. Plus on est lourd,
+ *   plus on brûle.
  */
 export function computeActivityKcal(
   type: ActivityType,
   value: number,
   weightKg: number,
+  met: number = DEFAULT_SPORT_MET,
 ): number {
   if (type === "steps") return Math.round(value * KCAL_PER_STEP);
-  const kcalPerMin = (SPORT_MET * 3.5 * weightKg) / 200;
-  return Math.round(value * kcalPerMin);
+  const netMet = Math.max(0, met - 1);
+  return Math.round((value * netMet * 3.5 * weightKg) / 200);
 }
 
 export interface TargetsInput {

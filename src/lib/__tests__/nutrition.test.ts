@@ -91,9 +91,17 @@ describe("computeActivityKcal", () => {
   it("pas : ~0,04 kcal/pas", () => {
     expect(computeActivityKcal("steps", 10000, 80)).toBe(400);
   });
-  it("sport : minutes × MET modéré pondéré par le poids", () => {
-    // 30 * (6*3.5*80/200) = 30 * 8.4 = 252
-    expect(computeActivityKcal("sport", 30, 80)).toBe(252);
+  it("sport : MET NET (MET-1), MET par défaut", () => {
+    // 30 * ((6-1)*3.5*80/200) = 30 * 7 = 210
+    expect(computeActivityKcal("sport", 30, 80)).toBe(210);
+  });
+  it("sport : MET spécifique en net, plus lourd = plus de kcal", () => {
+    // course (9.8 → net 8.8), 30 min, 109 kg : 30*8.8*3.5*109/200 ≈ 504
+    expect(computeActivityKcal("sport", 30, 109, 9.8)).toBe(504);
+    // même séance à 80 kg brûle moins
+    expect(computeActivityKcal("sport", 30, 80, 9.8)).toBeLessThan(
+      computeActivityKcal("sport", 30, 109, 9.8),
+    );
   });
 });
 
