@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Pencil, Trash2, Check } from "lucide-react";
 import { saveFoodMacros, deleteFoodItem, type SaveMacrosState } from "@/app/(app)/actions";
 
 export interface FoodItemRowProps {
@@ -13,7 +14,8 @@ export interface FoodItemRowProps {
 }
 
 const r = (n: number) => Math.round(n);
-const numCls = "w-full rounded border bg-transparent px-2 py-1 text-sm";
+const numCls =
+  "w-full rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100";
 
 export function FoodItemRow(props: FoodItemRowProps) {
   const [editing, setEditing] = useState(false);
@@ -24,56 +26,68 @@ export function FoodItemRow(props: FoodItemRowProps) {
 
   return (
     <li className="text-sm">
-      <div className="flex items-center justify-between">
-        <span className="text-neutral-700 dark:text-neutral-200">
-          {props.name} <span className="text-neutral-400">({r(props.quantityG)} g)</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 flex-1 truncate text-neutral-700">
+          {props.name} <span className="text-neutral-400">· {r(props.quantityG)} g</span>
           {props.badge === "ai" && (
-            <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] text-amber-700">estimé</span>
+            <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+              estimé
+            </span>
           )}
           {props.badge === "unknown" && (
-            <span className="ml-1 rounded bg-red-100 px-1 text-[10px] text-red-700">à compléter</span>
+            <span className="ml-1.5 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-700">
+              à compléter
+            </span>
           )}
         </span>
-        <span className="flex items-center gap-2 text-neutral-500">
-          {r(props.kcal)} kcal
+        <span className="flex shrink-0 items-center gap-2.5">
+          <span className="tabular-nums font-medium text-neutral-600">{r(props.kcal)} kcal</span>
           <button
             type="button"
             aria-label="Modifier"
             onClick={() => setEditing((e) => !e)}
-            className="text-neutral-400 hover:text-green-600"
+            className="text-neutral-300 hover:text-emerald-600"
           >
-            ✎
+            <Pencil size={15} />
           </button>
-          <form action={deleteFoodItem}>
+          <form action={deleteFoodItem} className="flex">
             <input type="hidden" name="id" value={props.id} />
-            <button type="submit" aria-label="Supprimer" className="text-neutral-400 hover:text-red-500">
-              ×
+            <button type="submit" aria-label="Supprimer" className="text-neutral-300 hover:text-rose-500">
+              <Trash2 size={15} />
             </button>
           </form>
         </span>
       </div>
 
       {editing && (
-        <form action={formAction} className="mt-2 space-y-2 rounded-lg border p-2">
+        <form action={formAction} className="mt-2 space-y-2 rounded-xl bg-neutral-50 p-3 ring-1 ring-neutral-100">
           <input type="hidden" name="itemId" value={props.id} />
           <div className="flex items-center gap-2">
-            <label className="w-28 text-xs text-neutral-500">Quantité (g)</label>
+            <label className="w-24 text-xs font-medium text-neutral-500">Quantité (g)</label>
             <input name="quantityG" type="number" step="1" defaultValue={r(props.quantityG)} required className={numCls} />
           </div>
           <p className="text-xs font-medium text-neutral-500">Valeurs pour 100 g :</p>
-          <div className="grid grid-cols-5 gap-1">
-            <input name="kcal" type="number" step="0.1" defaultValue={props.per100.kcal} placeholder="kcal" required className={numCls} />
-            <input name="proteinG" type="number" step="0.1" defaultValue={props.per100.proteinG} placeholder="Prot" required className={numCls} />
-            <input name="carbG" type="number" step="0.1" defaultValue={props.per100.carbG} placeholder="Gluc" required className={numCls} />
-            <input name="fatG" type="number" step="0.1" defaultValue={props.per100.fatG} placeholder="Lip" required className={numCls} />
-            <input name="fiberG" type="number" step="0.1" defaultValue={props.per100.fiberG} placeholder="Fib" required className={numCls} />
+          <div className="grid grid-cols-5 gap-1.5">
+            {([
+              ["kcal", "kcal", props.per100.kcal],
+              ["proteinG", "Prot", props.per100.proteinG],
+              ["carbG", "Gluc", props.per100.carbG],
+              ["fatG", "Lip", props.per100.fatG],
+              ["fiberG", "Fib", props.per100.fiberG],
+            ] as const).map(([name, ph, val]) => (
+              <input key={name} name={name} type="number" step="0.1" defaultValue={val} placeholder={ph} required className={numCls} />
+            ))}
           </div>
-          {state?.error && <p className="text-xs text-red-600">{state.error}</p>}
-          {state?.ok && <p className="text-xs text-green-600">Enregistré. Tu peux fermer.</p>}
+          {state?.error && <p className="text-xs text-rose-600">{state.error}</p>}
+          {state?.ok && (
+            <p className="flex items-center gap-1 text-xs text-emerald-600">
+              <Check size={13} /> Enregistré.
+            </p>
+          )}
           <button
             type="submit"
             disabled={pending}
-            className="w-full rounded-lg bg-green-600 py-1.5 text-sm font-medium text-white disabled:opacity-60"
+            className="w-full rounded-lg bg-emerald-500 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {pending ? "Enregistrement…" : "Enregistrer"}
           </button>

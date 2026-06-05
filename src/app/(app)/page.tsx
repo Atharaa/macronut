@@ -1,22 +1,22 @@
 import type { MealType } from "@prisma/client";
 import Link from "next/link";
+import { Sunrise, Apple, UtensilsCrossed, Cookie, Moon, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { startOfToday } from "@/lib/date";
 import { MealInput } from "@/components/MealInput";
 import { FoodItemRow } from "@/components/FoodItemRow";
+import { MacroBar } from "@/components/MacroBar";
 
-const MEALS: { type: MealType; label: string; icon: string }[] = [
-  { type: "breakfast", label: "Petit déjeuner", icon: "🌅" },
-  { type: "morning_snack", label: "Collation matin", icon: "🍎" },
-  { type: "lunch", label: "Déjeuner", icon: "🍽️" },
-  { type: "afternoon_snack", label: "Collation après-midi", icon: "🥨" },
-  { type: "dinner", label: "Dîner", icon: "🌙" },
+const MEALS: { type: MealType; label: string; icon: LucideIcon; chip: string }[] = [
+  { type: "breakfast", label: "Petit déjeuner", icon: Sunrise, chip: "bg-amber-100 text-amber-600" },
+  { type: "morning_snack", label: "Collation matin", icon: Apple, chip: "bg-emerald-100 text-emerald-600" },
+  { type: "lunch", label: "Déjeuner", icon: UtensilsCrossed, chip: "bg-sky-100 text-sky-600" },
+  { type: "afternoon_snack", label: "Collation après-midi", icon: Cookie, chip: "bg-orange-100 text-orange-600" },
+  { type: "dinner", label: "Dîner", icon: Moon, chip: "bg-indigo-100 text-indigo-600" },
 ];
 
-function r(n: number): number {
-  return Math.round(n);
-}
+const r = (n: number) => Math.round(n);
 
 export default async function JourneePage() {
   const user = await getCurrentUser();
@@ -34,7 +34,6 @@ export default async function JourneePage() {
 
   const mealByType = new Map(meals.map((m) => [m.type, m]));
   const allItems = meals.flatMap((m) => m.items);
-
   const consumed = allItems.reduce(
     (a, i) => ({
       kcal: a.kcal + i.kcal,
@@ -48,48 +47,71 @@ export default async function JourneePage() {
   const activityBonus = activities.reduce((s, a) => s + a.estimatedKcal, 0);
 
   const hasGoal = goal?.targetKcal != null;
-  const remainingKcal = hasGoal ? goal!.targetKcal! + activityBonus - consumed.kcal : null;
+  const budget = hasGoal ? goal!.targetKcal! + activityBonus : 0;
+  const remainingKcal = hasGoal ? budget - consumed.kcal : null;
+  const pctEaten = budget > 0 ? Math.min(100, Math.round((consumed.kcal / budget) * 100)) : 0;
 
-  const macroRow = (label: string, consumedG: number, targetG: number | null | undefined) => (
-    <div className="flex-1 rounded-lg bg-white/15 px-1 py-1.5 text-center">
-      <div className="text-[11px] opacity-85">{label}</div>
-      <div className="text-sm font-semibold">{r(Math.max(0, (targetG ?? 0) - consumedG))} g</div>
-      <div className="text-[10px] opacity-70">/ {targetG ?? "—"}</div>
-    </div>
-  );
+  const dateLabel = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
+
+  const macroBars = [
+    { label: "Protéines", consumed: consumed.proteinG, target: goal?.targetProteinG, barClass: "bg-indigo-500", trackClass: "bg-indigo-100" },
+    { label: "Glucides", consumed: consumed.carbG, target: goal?.targetCarbG, barClass: "bg-amber-500", trackClass: "bg-amber-100" },
+    { label: "Lipides", consumed: consumed.fatG, target: goal?.targetFatG, barClass: "bg-rose-500", trackClass: "bg-rose-100" },
+    { label: "Fibres", consumed: consumed.fiberG, target: goal?.targetFiberG, barClass: "bg-emerald-500", trackClass: "bg-emerald-100" },
+  ];
 
   return (
-    <main className="p-3">
-      {/* Bandeau restant */}
-      <section className="rounded-2xl bg-gradient-to-br from-green-600 to-green-700 p-4 text-white">
-        <div className="text-xs uppercase tracking-wide opacity-85">Restant aujourd'hui</div>
+    <main className="space-y-4 p-4">
+      {/* En-tête dégradé : calories restantes */}
+      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lg shadow-emerald-500/20">
+        <div className="text-xs font-medium uppercase tracking-wide text-white/75 first-letter:uppercase">
+          {dateLabel}
+        </div>
         {hasGoal ? (
           <>
-            <div className="mt-0.5 flex items-baseline gap-1.5">
-              <div className="text-4xl font-bold">{r(remainingKcal!)}</div>
-              <div className="text-sm opacity-85">
-                / {goal!.targetKcal} kcal{activityBonus > 0 ? ` (+${activityBonus} activité)` : ""}
+            <div className="mt-1 flex items-end justify-between">
+              <div>
+                <div className="text-5xl font-bold leading-none">{r(remainingKcal!)}</div>
+                <div className="mt-1 text-sm text-white/80">kcal restantes</div>
+              </div>
+              <div className="text-right text-xs text-white/75">
+                <div>{r(consumed.kcal)} consommées</div>
+                <div>objectif {goal!.targetKcal}</div>
+                {activityBonus > 0 && <div>+{activityBonus} activité</div>}
               </div>
             </div>
-            <div className="mt-3 flex gap-2">
-              {macroRow("Prot.", consumed.proteinG, goal!.targetProteinG)}
-              {macroRow("Gluc.", consumed.carbG, goal!.targetCarbG)}
-              {macroRow("Lip.", consumed.fatG, goal!.targetFatG)}
-              {macroRow("Fibres", consumed.fiberG, goal!.targetFiberG)}
+            <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/25">
+              <div
+                className="h-full rounded-full bg-white transition-[width] duration-500"
+                style={{ width: `${pctEaten}%` }}
+              />
             </div>
           </>
         ) : (
-          <div className="mt-1 text-sm">
-            Définis ton objectif pour voir tes besoins.{" "}
-            <Link href="/objectif" className="underline">
-              Aller à l'objectif
+          <div className="mt-2 text-sm text-white/90">
+            Définis ton objectif pour suivre tes besoins.{" "}
+            <Link href="/objectif" className="font-semibold underline underline-offset-2">
+              Configurer
             </Link>
           </div>
         )}
       </section>
 
+      {/* Macros */}
+      {hasGoal && (
+        <section className="grid grid-cols-2 gap-x-5 gap-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+          {macroBars.map((m) => (
+            <MacroBar key={m.label} {...m} />
+          ))}
+        </section>
+      )}
+
       {/* Repas */}
-      <div className="mt-3 space-y-3">
+      <div className="space-y-3">
         {MEALS.map((m) => {
           const meal = mealByType.get(m.type);
           const items = meal?.items ?? [];
@@ -98,19 +120,28 @@ export default async function JourneePage() {
           const c = items.reduce((s, i) => s + i.carbG, 0);
           const f = items.reduce((s, i) => s + i.fatG, 0);
           const fib = items.reduce((s, i) => s + i.fiberG, 0);
+          const Icon = m.icon;
           return (
-            <section key={m.type} className="rounded-2xl border p-3">
-              <div className="flex items-center justify-between">
-                <div className="font-semibold">
-                  {m.icon} {m.label}
+            <section key={m.type} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+              <div className="flex items-center gap-3">
+                <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${m.chip}`}>
+                  <Icon size={18} strokeWidth={2.2} />
+                </span>
+                <div className="flex-1">
+                  <div className="font-semibold text-neutral-800">{m.label}</div>
+                  {items.length > 0 && (
+                    <div className="text-[11px] text-neutral-400">
+                      P {r(p)} · G {r(c)} · L {r(f)} · F {r(fib)}
+                    </div>
+                  )}
                 </div>
-                <div className="text-sm text-neutral-500">
-                  {items.length ? `${r(mealKcal)} kcal` : "vide"}
+                <div className="text-sm font-semibold text-neutral-500">
+                  {items.length ? `${r(mealKcal)} kcal` : ""}
                 </div>
               </div>
 
               {items.length > 0 && (
-                <ul className="mt-2 space-y-2">
+                <ul className="mt-3 space-y-2 border-t border-neutral-100 pt-3">
                   {items.map((i) => {
                     const per100 = i.reference
                       ? {
@@ -144,12 +175,6 @@ export default async function JourneePage() {
                     );
                   })}
                 </ul>
-              )}
-
-              {items.length > 0 && (
-                <div className="mt-2 text-[11px] text-neutral-400">
-                  P {r(p)} · G {r(c)} · L {r(f)} · F {r(fib)}
-                </div>
               )}
 
               <MealInput mealType={m.type} />

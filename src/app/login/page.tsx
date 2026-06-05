@@ -1,37 +1,36 @@
 "use client";
 
 import { useActionState } from "react";
+import Image from "next/image";
 import { login } from "./actions";
+
+const inputCls =
+  "w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100";
 
 export default function LoginPage() {
   const [error, formAction, pending] = useActionState(login, undefined);
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <form action={formAction} className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-semibold">Macronaut</h1>
-        <input
-          name="email"
-          type="email"
-          required
-          placeholder="Email"
-          className="w-full rounded-lg border p-3"
-        />
-        <input
-          name="password"
-          type="password"
-          required
-          placeholder="Mot de passe"
-          className="w-full rounded-lg border p-3"
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded-lg bg-green-600 p-3 font-medium text-white disabled:opacity-60"
-        >
-          Se connecter
-        </button>
-      </form>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <Image src="/icon-192.png" alt="" width={64} height={64} className="rounded-2xl shadow-md" priority />
+          <h1 className="mt-3 text-2xl font-bold text-neutral-800">Macronaut</h1>
+          <p className="text-sm text-neutral-500">Ton suivi nutritionnel</p>
+        </div>
+
+        <form action={formAction} className="space-y-3 rounded-3xl bg-white p-6 shadow-xl shadow-emerald-500/5 ring-1 ring-neutral-100">
+          <input name="email" type="email" required placeholder="Email" className={inputCls} />
+          <input name="password" type="password" required placeholder="Mot de passe" className={inputCls} />
+          {error && <p className="text-sm text-rose-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 py-3 font-semibold text-white shadow-md shadow-emerald-500/25 disabled:opacity-60"
+          >
+            {pending ? "Connexion…" : "Se connecter"}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

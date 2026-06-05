@@ -1,7 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import { Plus } from "lucide-react";
 import { addWeight, type WeightState } from "@/app/(app)/poids/actions";
+
+const inputCls =
+  "rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100";
 
 export function WeightForm() {
   const [state, formAction, pending] = useActionState<WeightState | undefined, FormData>(
@@ -9,27 +13,21 @@ export function WeightForm() {
     undefined,
   );
   return (
-    <form action={formAction} className="space-y-3">
-      <div className="flex gap-2">
-        <input
-          type="number"
-          name="weightKg"
-          step="0.1"
-          required
-          placeholder="Poids (kg)"
-          className="flex-1 rounded-lg border p-2.5 bg-transparent"
-        />
-        <input type="date" name="date" className="rounded-lg border p-2.5 bg-transparent" />
+    <form action={formAction} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+      <div className="flex items-center gap-2">
+        <input type="number" name="weightKg" step="0.1" required placeholder="Poids (kg)" className={`min-w-0 flex-1 ${inputCls}`} />
+        <input type="date" name="date" className={inputCls} />
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-green-600 px-4 font-medium text-white disabled:opacity-60"
+          aria-label="Ajouter"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 disabled:opacity-60"
         >
-          +
+          <Plus size={20} />
         </button>
       </div>
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state?.ok && <p className="text-sm text-green-600">Pesée enregistrée.</p>}
+      {state?.error && <p className="mt-1.5 text-xs text-rose-600">{state.error}</p>}
+      {state?.ok && <p className="mt-1.5 text-xs text-emerald-600">Pesée enregistrée.</p>}
     </form>
   );
 }

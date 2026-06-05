@@ -1,7 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import { Plus } from "lucide-react";
 import { addActivity, type ActivityState } from "@/app/(app)/activite/actions";
+
+const fieldCls =
+  "rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100";
 
 export function ActivityForm() {
   const [state, formAction, pending] = useActionState<ActivityState | undefined, FormData>(
@@ -9,30 +13,24 @@ export function ActivityForm() {
     undefined,
   );
   return (
-    <form action={formAction} className="space-y-3">
-      <div className="flex gap-2">
-        <select name="type" className="rounded-lg border p-2.5 bg-transparent">
+    <form action={formAction} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+      <div className="flex items-center gap-2">
+        <select name="type" className={fieldCls}>
           <option value="steps">Pas</option>
           <option value="sport">Sport (min)</option>
         </select>
-        <input
-          type="number"
-          name="value"
-          step="1"
-          required
-          placeholder="Nombre / minutes"
-          className="flex-1 rounded-lg border p-2.5 bg-transparent"
-        />
+        <input type="number" name="value" step="1" required placeholder="Nombre / minutes" className={`min-w-0 flex-1 ${fieldCls}`} />
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-green-600 px-4 font-medium text-white disabled:opacity-60"
+          aria-label="Ajouter"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 disabled:opacity-60"
         >
-          +
+          <Plus size={20} />
         </button>
       </div>
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state?.ok && <p className="text-sm text-green-600">Activité ajoutée.</p>}
+      {state?.error && <p className="mt-1.5 text-xs text-rose-600">{state.error}</p>}
+      {state?.ok && <p className="mt-1.5 text-xs text-emerald-600">Activité ajoutée.</p>}
     </form>
   );
 }
