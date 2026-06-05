@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Sex {
+  male
+  female
+}
+
+enum GoalType {
+  loss
+  gain
+  maintain
+}
+
+enum ActivityLevel {
+  sedentary
+  light
+  moderate
+  active
+  very_active
+}
+
+enum MealType {
+  breakfast
+  morning_snack
+  lunch
+  afternoon_snack
+  dinner
+}
+
+enum ActivityType {
+  sport
+  steps
+}
+
+enum FoodSource {
+  ciqual
+  ai
+  manual
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  sex          Sex?
+  birthDate    DateTime?
+  heightCm     Float?
+  createdAt    DateTime  @default(now())
+
+  goal            Goal?
+  weightEntries   WeightEntry[]
+  activityEntries ActivityEntry[]
+  meals           Meal[]
+}
+
+model Goal {
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           GoalType
+  targetKg       Float?
+  weeklyRateKg   Float?
+  activityLevel  ActivityLevel @default(sedentary)
+  startDate      DateTime      @default(now())
+  targetKcal     Int?
+  targetProteinG Int?
+  targetCarbG    Int?
+  targetFatG     Int?
+  targetFiberG   Int?
+  updatedAt      DateTime      @updatedAt
+}
+
+model WeightEntry {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date     DateTime
+  weightKg Float
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model ActivityEntry {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime
+  type          ActivityType
+  value         Float
+  estimatedKcal Int
+
+  @@index([userId, date])
+}
+
+model Meal {
+  id     String     @id @default(cuid())
+  userId String
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   DateTime
+  type   MealType
+  items  FoodItem[]
+
+  @@unique([userId, date, type])
+  @@index([userId, date])
+}
+
+model FoodItem {
+  id          String         @id @default(cuid())
+  mealId      String
+  meal        Meal           @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  referenceId String?
+  reference   FoodReference? @relation(fields: [referenceId], references: [id])
+  name        String
+  quantityG   Float
+  kcal        Float
+  proteinG    Float
+  carbG       Float
+  fatG        Float
+  fiberG      Float
+}
+
+model FoodReference {
+  id       String     @id @default(cuid())
+  ciqualId String     @unique
+  name     String
+  kcal     Float
+  proteinG Float
+  carbG    Float
+  fatG     Float
+  fiberG   Float
+  source   FoodSource @default(ciqual)
+  items    FoodItem[]
+
+  @@index([name])
+}

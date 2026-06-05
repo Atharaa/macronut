@@ -1,0 +1,76 @@
+// Découpage d'un message en langage naturel en aliments + quantités (grammes).
+// L'IA ne fait QUE le découpage ; les valeurs nutritionnelles viennent de la base.
+
+import Anthropic from "@anthropic-ai/sdk";
+
+export interface ParsedFood {
+  name: string;
+  quantityG: number;
+}
+
+/** Interface minimale du client utilisée — permet d'injecter un faux client en test. */
+export interface AnthropicLike {
+  messages: {
+    create(args: Record<string, unknown>): Promise<{
+      content: Array<{ type: string; text?: string }>;
+    }>;
+  };
+}
+
+const MODEL = "claude-haiku-4-5";
+
+const SCHEMA = {
+  type: "object",
+  properties: {
+    items: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Nom de l'aliment en français, sans la quantité" },
+          quantityG: { type: "number", description: "Quantité estimée en grammes" },
+        },
+        required: ["name", "quantityG"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["items"],
+  additionalProperties: false,
+};
+
+const SYSTEM = `Tu extrais d'un message en français la liste des aliments mangés avec leur quantité en grammes.
+- Donne un nom d'aliment générique et simple, en français, SANS la quantité (ex: "blanc de poulet grillé", "riz basmati").
+- Convertis toute mesure (portions, cuillères, unités, ml) en une estimation raisonnable en grammes.
+- Une banane ≈ 120 g, un œuf ≈ 60 g, une cuillère à soupe d'huile ≈ 14 g, un yaourt ≈ 125 g.
+- Si aucune quantité n'est précisée, estime une portion courante.
+- Ne renvoie que les aliments réellement mentionnés.`;
+
+export function isAiConfigured(): boolean {
+  return !!process.env.ANTHROPIC_API_KEY;
+}
+
+export async function parseMealText(
+  text: string,
+  client?: AnthropicLike,
+): Promise<ParsedFood[]> {
+  const anthropic: AnthropicLike = client ?? (new Anthropic() as unknown as AnthropicLike);
+
+  const res = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 1024,
+    system: SYSTEM,
+    messages: [{ role: "user", content: text }],
+    output_config: { format: { type: "json_schema", schema: SCHEMA } },
+  });
+
+  const block = res.content.find((b) => b.type === "text" && b.text);
+  if (!block?.text) return [];
+
+  const data = JSON.parse(block.text) as { items?: ParsedFood[] };
+  if (!Array.isArray(data.items)) return [];
+
+  return data.items
+    .filter((i) => typeof i.name === "string" && typeof i.quantityG === "number" && i.quantityG > 0)
+    .map((i) => ({ name: i.name.trim(), quantityG: i.quantityG }));
+}
