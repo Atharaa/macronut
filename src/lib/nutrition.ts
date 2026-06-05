@@ -12,6 +12,10 @@ export type GoalType = "loss" | "gain" | "maintain";
 const KCAL_PER_KG = 7700;
 const KCAL_FLOOR = 1200;
 
+// Part des calories de sport réintégrée au budget du jour. Les dépenses sportives
+// (surtout cardio) sont souvent surestimées : on n'en reprend que la moitié.
+export const ACTIVITY_REINTEGRATION = 0.5;
+
 const ACTIVITY_FACTORS: Record<ActivityLevel, number> = {
   sedentary: 1.2,
   light: 1.375,

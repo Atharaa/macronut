@@ -7,6 +7,7 @@ import { startOfToday } from "@/lib/date";
 import { MealInput } from "@/components/MealInput";
 import { FoodItemRow } from "@/components/FoodItemRow";
 import { MacroBar } from "@/components/MacroBar";
+import { ACTIVITY_REINTEGRATION } from "@/lib/nutrition";
 
 const MEALS: { type: MealType; label: string; icon: LucideIcon; chip: string }[] = [
   { type: "breakfast", label: "Petit déjeuner", icon: Sunrise, chip: "bg-amber-100 text-amber-600" },
@@ -44,7 +45,9 @@ export default async function JourneePage() {
     }),
     { kcal: 0, proteinG: 0, carbG: 0, fatG: 0, fiberG: 0 },
   );
-  const activityBonus = activities.reduce((s, a) => s + a.estimatedKcal, 0);
+  const activityBurn = activities.reduce((s, a) => s + a.estimatedKcal, 0);
+  // On ne réintègre qu'une partie des calories de sport (souvent surestimées).
+  const activityBonus = Math.round(activityBurn * ACTIVITY_REINTEGRATION);
 
   const hasGoal = goal?.targetKcal != null;
   const budget = hasGoal ? goal!.targetKcal! + activityBonus : 0;
@@ -81,7 +84,7 @@ export default async function JourneePage() {
               <div className="text-right text-xs text-white/75">
                 <div>{r(consumed.kcal)} consommées</div>
                 <div>objectif {goal!.targetKcal}</div>
-                {activityBonus > 0 && <div>+{activityBonus} activité</div>}
+                {activityBonus > 0 && <div>+{activityBonus} activité (50%)</div>}
               </div>
             </div>
             <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/25">

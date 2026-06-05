@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { startOfDay, startOfToday } from "@/lib/date";
+import { recomputeGoalTargets } from "@/lib/goal";
 
 const schema = z.object({
   weightKg: z.coerce.number().positive(),
@@ -34,6 +35,11 @@ export async function addWeight(
     create: { userId: user.id, date, weightKg: parsed.data.weightKg },
   });
 
+  // Les besoins suivent le poids : on recalcule les objectifs.
+  await recomputeGoalTargets(user.id);
+
   revalidatePath("/poids");
+  revalidatePath("/objectif");
+  revalidatePath("/");
   return { ok: true };
 }
