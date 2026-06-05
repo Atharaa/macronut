@@ -13,6 +13,9 @@ const QUALIFIERS = new Set([
   // Termes génériques de produits (sinon faux match sur le seul mot commun)
   "proteine", "proteines", "poudre", "poudres", "boisson", "boissons",
   "shaker", "complement", "alimentaire", "rehydrate", "rehydratee",
+  // Mots de catégorie : un spécificateur est attendu (sinon faux match sur un plat composé)
+  "salade", "salades", "sauce", "sauces", "jus", "soupe", "soupes",
+  "puree", "purees", "tarte", "tartes", "gateau", "gateaux", "plat", "plats",
 ]);
 
 export function normalize(text: string): string {
@@ -26,9 +29,10 @@ export function normalize(text: string): string {
 }
 
 function significantTokens(text: string): string[] {
-  return normalize(text)
+  const tokens = normalize(text)
     .split(" ")
     .filter((t) => t.length >= 3 && !STOPWORDS.has(t));
+  return [...new Set(tokens)]; // dédoublonnage : un mot répété ne gonfle pas le score
 }
 
 function tokensMatch(a: string, b: string): boolean {

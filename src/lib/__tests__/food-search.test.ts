@@ -10,6 +10,8 @@ const foods = [
   { name: "Yaourt grec" },
   { name: "Pomme" },
   { name: "Protéine de soja, réhydratée" },
+  { name: "Laitue iceberg, crue" },
+  { name: "Salade César au poulet (salade verte, fromage, croûtons, sauce), préemballée" },
 ];
 
 describe("normalize", () => {
@@ -50,5 +52,13 @@ describe("findBestMatch", () => {
 
   it("matche encore la protéine de soja sur 'soja' (mot distinctif)", () => {
     expect(findBestMatch("protéine de soja", foods)?.name).toBe("Protéine de soja, réhydratée");
+  });
+
+  it("salade iceberg → laitue iceberg, pas la salade César (tokens dédoublonnés + 'salade' générique)", () => {
+    expect(findBestMatch("une salade iceberg", foods)?.name).toBe("Laitue iceberg, crue");
+  });
+
+  it("le poulet reste un mot distinctif (non pénalisé)", () => {
+    expect(findBestMatch("blanc de poulet grillé", foods)?.name).toBe("Blanc de poulet grillé");
   });
 });
