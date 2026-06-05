@@ -41,20 +41,24 @@ export function FoodItemRow(props: FoodItemRowProps) {
             </span>
           )}
         </span>
-        <span className="flex shrink-0 items-center gap-2.5">
-          <span className="tabular-nums font-medium text-neutral-600 dark:text-neutral-300">{r(props.kcal)} kcal</span>
+        <span className="flex shrink-0 items-center gap-1">
+          <span className="mr-1 tabular-nums font-medium text-neutral-600 dark:text-neutral-300">{r(props.kcal)} kcal</span>
           <button
             type="button"
             aria-label="Modifier"
             onClick={() => setEditing((e) => !e)}
-            className="text-neutral-300 hover:text-emerald-600"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-emerald-600 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-emerald-400"
           >
-            <Pencil size={15} />
+            <Pencil size={17} />
           </button>
           <form action={deleteFoodItem} className="flex">
             <input type="hidden" name="id" value={props.id} />
-            <button type="submit" aria-label="Supprimer" className="text-neutral-300 hover:text-rose-500">
-              <Trash2 size={15} />
+            <button
+              type="submit"
+              aria-label="Supprimer"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-rose-500 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-rose-400"
+            >
+              <Trash2 size={17} />
             </button>
           </form>
         </span>

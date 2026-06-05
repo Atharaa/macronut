@@ -23,26 +23,30 @@ export function ActivityItem(props: ActivityItemProps) {
 
   return (
     <li className="rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400">
+      <div className="flex items-center gap-2">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400">
           <Icon size={18} strokeWidth={2.2} />
         </span>
-        <span className="flex-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-700 dark:text-neutral-200">
           {isSteps ? `${props.value} pas` : `${props.name ?? "Sport"} · ${props.value} min`}
         </span>
-        <span className="text-sm font-semibold text-orange-600">+{props.estimatedKcal} kcal</span>
+        <span className="mr-1 text-sm font-semibold text-orange-600">+{props.estimatedKcal} kcal</span>
         <button
           type="button"
           aria-label="Modifier"
           onClick={() => setEditing((e) => !e)}
-          className="text-neutral-300 hover:text-emerald-600"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-emerald-600 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-emerald-400"
         >
-          <Pencil size={15} />
+          <Pencil size={17} />
         </button>
         <form action={deleteActivity} className="flex">
           <input type="hidden" name="id" value={props.id} />
-          <button type="submit" aria-label="Supprimer" className="text-neutral-300 hover:text-rose-500">
-            <Trash2 size={15} />
+          <button
+            type="submit"
+            aria-label="Supprimer"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-rose-500 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-rose-400"
+          >
+            <Trash2 size={17} />
           </button>
         </form>
       </div>
