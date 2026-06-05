@@ -62,11 +62,25 @@ async function main() {
   const byId = new Map(records.map((r) => [r.ciqualId, r]));
   const unique = [...byId.values()];
 
-  // Remplace l'import précédent (n'affecte ni starter- ni ai/manual).
-  await prisma.foodReference.deleteMany({ where: { ciqualId: { startsWith: "ciqual-" } } });
-  const result = await prisma.foodReference.createMany({ data: unique, skipDuplicates: true });
+  // Idempotent : upsert par ciqualId (id stable, aucune suppression). N'affecte
+  // jamais les données utilisateur (User/Goal/Meal/...) ni les références ai/manual.
+  const CHUNK = 50;
+  let done = 0;
+  for (let i = 0; i < unique.length; i += CHUNK) {
+    const batch = unique.slice(i, i + CHUNK);
+    await Promise.all(
+      batch.map((r) =>
+        prisma.foodReference.upsert({
+          where: { ciqualId: r.ciqualId },
+          update: { name: r.name, kcal: r.kcal, proteinG: r.proteinG, carbG: r.carbG, fatG: r.fatG, fiberG: r.fiberG },
+          create: r,
+        }),
+      ),
+    );
+    done += batch.length;
+  }
 
-  console.log(`CIQUAL importé : ${result.count} aliments (sur ${rows.length} lignes).`);
+  console.log(`CIQUAL importé (upsert) : ${done} aliments (sur ${rows.length} lignes).`);
 }
 
 main()
