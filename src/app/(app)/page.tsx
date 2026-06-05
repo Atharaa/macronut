@@ -174,6 +174,7 @@ export default async function JourneePage() {
                         kcal={i.kcal}
                         per100={per100}
                         badge={badge}
+                        defaultOpen={badge === "unknown"}
                       />
                     );
                   })}

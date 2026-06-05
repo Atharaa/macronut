@@ -66,6 +66,7 @@ export async function deleteFoodItem(formData: FormData): Promise<void> {
 
 const macrosSchema = z.object({
   itemId: z.string().min(1),
+  name: z.string().trim().min(1),
   quantityG: numPositive,
   kcal: numMin0,
   proteinG: numMin0,
@@ -90,6 +91,7 @@ export async function saveFoodMacros(
 
   const parsed = macrosSchema.safeParse({
     itemId: formData.get("itemId"),
+    name: formData.get("name"),
     quantityG: formData.get("quantityG"),
     kcal: formData.get("kcal"),
     proteinG: formData.get("proteinG"),
@@ -104,6 +106,7 @@ export async function saveFoodMacros(
   });
   if (!item) return { error: "Aliment introuvable." };
 
+  const { name } = parsed.data;
   const per100g = {
     kcal: parsed.data.kcal,
     proteinG: parsed.data.proteinG,
@@ -112,30 +115,19 @@ export async function saveFoodMacros(
     fiberG: parsed.data.fiberG,
   };
 
-  let referenceId = item.referenceId;
-  if (referenceId) {
-    await prisma.foodReference.update({
-      where: { id: referenceId },
-      data: { ...per100g, source: "manual" },
-    });
-  } else {
-    const ref = await prisma.foodReference.upsert({
-      where: { ciqualId: `manual-${normalize(item.name).replace(/\s+/g, "-")}` },
-      update: { ...per100g, source: "manual" },
-      create: {
-        ciqualId: `manual-${normalize(item.name).replace(/\s+/g, "-")}`,
-        name: item.name,
-        ...per100g,
-        source: "manual",
-      },
-    });
-    referenceId = ref.id;
-  }
+  // Toute saisie manuelle crée/maj une référence PERSO réutilisable (clé = nom).
+  // On ne modifie jamais une référence CIQUAL/IA partagée.
+  const ciqualId = `manual-${normalize(name).replace(/\s+/g, "-")}`;
+  const ref = await prisma.foodReference.upsert({
+    where: { ciqualId },
+    update: { name, ...per100g, source: "manual" },
+    create: { ciqualId, name, ...per100g, source: "manual" },
+  });
 
   const scaled = scaleMacros(per100g, parsed.data.quantityG);
   await prisma.foodItem.update({
     where: { id: item.id },
-    data: { referenceId, quantityG: parsed.data.quantityG, ...scaled },
+    data: { referenceId: ref.id, name, quantityG: parsed.data.quantityG, ...scaled },
   });
 
   revalidatePath("/");

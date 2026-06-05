@@ -11,6 +11,7 @@ export interface FoodItemRowProps {
   kcal: number;
   per100: { kcal: number; proteinG: number; carbG: number; fatG: number; fiberG: number };
   badge?: "ai" | "unknown";
+  defaultOpen?: boolean;
 }
 
 const r = (n: number) => Math.round(n);
@@ -18,7 +19,7 @@ const numCls =
   "w-full rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 dark:border-neutral-700 dark:bg-neutral-800 dark:focus:bg-neutral-900";
 
 export function FoodItemRow(props: FoodItemRowProps) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(props.defaultOpen ?? false);
   const [state, formAction, pending] = useActionState<SaveMacrosState | undefined, FormData>(
     saveFoodMacros,
     undefined,
@@ -62,6 +63,10 @@ export function FoodItemRow(props: FoodItemRowProps) {
       {editing && (
         <form action={formAction} className="mt-2 space-y-2 rounded-xl bg-neutral-50 p-3 ring-1 ring-neutral-100 dark:bg-neutral-800/50 dark:ring-neutral-800">
           <input type="hidden" name="itemId" value={props.id} />
+          <div>
+            <label className="text-xs font-medium text-neutral-500">Nom de l'aliment</label>
+            <input name="name" type="text" defaultValue={props.name} required className={`${numCls} mt-1`} />
+          </div>
           <div className="flex items-center gap-2">
             <label className="w-24 text-xs font-medium text-neutral-500">Quantité (g)</label>
             <input name="quantityG" type="text" inputMode="decimal" defaultValue={r(props.quantityG)} required className={numCls} />
