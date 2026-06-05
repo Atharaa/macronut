@@ -6,12 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getLatestWeight } from "@/lib/user";
 import { startOfToday } from "@/lib/date";
 import { computeActivityKcal, sportMet, sportLabel } from "@/lib/nutrition";
+import { numPositive } from "@/lib/validation";
 
 const DEFAULT_WEIGHT_KG = 70;
 
 const schema = z.object({
   type: z.enum(["sport", "steps"]),
-  value: z.coerce.number().positive(),
+  value: numPositive,
   sport: z.string().optional(),
 });
 

@@ -68,17 +68,17 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
           </div>
           <div>
             <span className={labelCls}>Taille (cm)</span>
-            <input type="number" name="heightCm" step="0.1" defaultValue={initial.heightCm} required className={inputCls} />
+            <input type="text" inputMode="decimal" name="heightCm" defaultValue={initial.heightCm} required className={inputCls} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <span className={labelCls}>Poids actuel (kg)</span>
-            <input type="number" name="weightKg" step="0.1" defaultValue={initial.weightKg} required className={inputCls} />
+            <input type="text" inputMode="decimal" name="weightKg" defaultValue={initial.weightKg} required className={inputCls} />
           </div>
           <div>
             <span className={labelCls}>Masse sèche (kg)</span>
-            <input type="number" name="leanMassKg" step="0.1" defaultValue={initial.leanMassKg} placeholder="optionnel" className={inputCls} />
+            <input type="text" inputMode="decimal" name="leanMassKg" defaultValue={initial.leanMassKg} placeholder="optionnel" className={inputCls} />
           </div>
         </div>
         <p className="text-xs text-neutral-400 dark:text-neutral-500">
@@ -101,11 +101,11 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <span className={labelCls}>Objectif (kg)</span>
-            <input type="number" name="targetKg" step="0.1" defaultValue={initial.targetKg} placeholder="—" className={inputCls} />
+            <input type="text" inputMode="decimal" name="targetKg" defaultValue={initial.targetKg} placeholder="—" className={inputCls} />
           </div>
           <div>
             <span className={labelCls}>Rythme (kg/sem.)</span>
-            <input type="number" name="weeklyRateKg" step="0.05" defaultValue={initial.weeklyRateKg} placeholder="—" className={inputCls} />
+            <input type="text" inputMode="decimal" name="weeklyRateKg" defaultValue={initial.weeklyRateKg} placeholder="—" className={inputCls} />
           </div>
         </div>
         <p className="text-xs text-neutral-400 dark:text-neutral-500">Laisse ces deux champs vides en maintien.</p>

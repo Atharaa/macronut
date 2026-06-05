@@ -6,9 +6,10 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { startOfDay, startOfToday } from "@/lib/date";
 import { recomputeGoalTargets } from "@/lib/goal";
+import { numPositive } from "@/lib/validation";
 
 const schema = z.object({
-  weightKg: z.coerce.number().positive(),
+  weightKg: numPositive,
   date: z.coerce.date().optional(),
 });
 

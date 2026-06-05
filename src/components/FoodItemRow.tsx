@@ -64,7 +64,7 @@ export function FoodItemRow(props: FoodItemRowProps) {
           <input type="hidden" name="itemId" value={props.id} />
           <div className="flex items-center gap-2">
             <label className="w-24 text-xs font-medium text-neutral-500">Quantité (g)</label>
-            <input name="quantityG" type="number" step="1" defaultValue={r(props.quantityG)} required className={numCls} />
+            <input name="quantityG" type="text" inputMode="decimal" defaultValue={r(props.quantityG)} required className={numCls} />
           </div>
           <p className="text-xs font-medium text-neutral-500">Valeurs pour 100 g :</p>
           <div className="grid grid-cols-5 gap-1.5">
@@ -75,7 +75,7 @@ export function FoodItemRow(props: FoodItemRowProps) {
               ["fatG", "Lip", props.per100.fatG],
               ["fiberG", "Fib", props.per100.fiberG],
             ] as const).map(([name, ph, val]) => (
-              <input key={name} name={name} type="number" step="0.1" defaultValue={val} placeholder={ph} required className={numCls} />
+              <input key={name} name={name} type="text" inputMode="decimal" defaultValue={val} placeholder={ph} required className={numCls} />
             ))}
           </div>
           {state?.error && <p className="text-xs text-rose-600">{state.error}</p>}

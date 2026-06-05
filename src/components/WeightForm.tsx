@@ -15,7 +15,7 @@ export function WeightForm() {
   return (
     <form action={formAction} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
       <div className="flex items-center gap-2">
-        <input type="number" name="weightKg" step="0.1" required placeholder="Poids (kg)" className={`min-w-0 flex-1 ${inputCls}`} />
+        <input type="text" inputMode="decimal" name="weightKg" required placeholder="Poids (kg)" className={`min-w-0 flex-1 ${inputCls}`} />
         <input type="date" name="date" className={inputCls} />
         <button
           type="submit"

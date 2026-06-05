@@ -6,22 +6,18 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { startOfToday } from "@/lib/date";
 import { ageFromBirthDate, computeTargets } from "@/lib/nutrition";
-
-const optionalPositive = z.preprocess(
-  (v) => (v === null || v === "" ? null : Number(v)),
-  z.number().positive().nullable(),
-);
+import { numPositive, optionalNumPositive } from "@/lib/validation";
 
 const schema = z.object({
   sex: z.enum(["male", "female"]),
   birthDate: z.coerce.date(),
-  heightCm: z.coerce.number().positive(),
-  weightKg: z.coerce.number().positive(),
+  heightCm: numPositive,
+  weightKg: numPositive,
   activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very_active"]),
   goalType: z.enum(["loss", "gain", "maintain"]),
-  targetKg: optionalPositive,
-  weeklyRateKg: optionalPositive,
-  leanMassKg: optionalPositive,
+  targetKg: optionalNumPositive,
+  weeklyRateKg: optionalNumPositive,
+  leanMassKg: optionalNumPositive,
 });
 
 export type ObjectifState = { error?: string; ok?: boolean };

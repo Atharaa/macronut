@@ -10,6 +10,7 @@ import { addFoodsFromText } from "@/lib/meal";
 import { isAiConfigured } from "@/lib/ai/parse-meal";
 import { scaleMacros } from "@/lib/macros";
 import { normalize } from "@/lib/food-search";
+import { numPositive, numMin0 } from "@/lib/validation";
 
 const MEAL_TYPES: MealType[] = [
   "breakfast",
@@ -65,12 +66,12 @@ export async function deleteFoodItem(formData: FormData): Promise<void> {
 
 const macrosSchema = z.object({
   itemId: z.string().min(1),
-  quantityG: z.coerce.number().positive(),
-  kcal: z.coerce.number().min(0),
-  proteinG: z.coerce.number().min(0),
-  carbG: z.coerce.number().min(0),
-  fatG: z.coerce.number().min(0),
-  fiberG: z.coerce.number().min(0),
+  quantityG: numPositive,
+  kcal: numMin0,
+  proteinG: numMin0,
+  carbG: numMin0,
+  fatG: numMin0,
+  fiberG: numMin0,
 });
 
 export type SaveMacrosState = { error?: string; ok?: boolean };
