@@ -57,12 +57,13 @@ export function computeTargetKcal(
   tdee: number,
   goalType: GoalType,
   weeklyRateKg: number | null,
+  floorKcal: number = KCAL_FLOOR,
 ): number {
   const base = Math.round(tdee);
   if (goalType === "maintain") return base;
   const delta = dailyAdjustment(weeklyRateKg);
   if (goalType === "gain") return base + delta;
-  return Math.max(KCAL_FLOOR, base - delta);
+  return Math.max(floorKcal, base - delta);
 }
 
 export interface Macros {
@@ -139,13 +140,31 @@ export interface Targets extends Macros {
   tdee: number;
   targetKcal: number;
   weeksToGoal: number | null;
+  floorApplied: boolean; // true si le rythme demandé a été bridé par le plancher (métabolisme de base)
 }
 
 export function computeTargets(input: TargetsInput): Targets {
   const bmr = computeBmr(input);
   const tdee = computeTdee(bmr, input.activityLevel);
-  const targetKcal = computeTargetKcal(tdee, input.goalType, input.weeklyRateKg);
+  // Garde-fou : ne jamais descendre sous le métabolisme de base.
+  const floorKcal = Math.max(KCAL_FLOOR, Math.round(bmr));
+  const targetKcal = computeTargetKcal(tdee, input.goalType, input.weeklyRateKg, floorKcal);
+  const uncapped = computeTargetKcal(tdee, input.goalType, input.weeklyRateKg, 0);
+  const floorApplied = input.goalType === "loss" && uncapped < targetKcal;
+
   const macros = computeMacros(targetKcal, input.weightKg, input.leanMassKg);
-  const weeksToGoal = estimateWeeksToGoal(input.targetKg ?? null, input.weeklyRateKg);
-  return { bmr, tdee, targetKcal, ...macros, weeksToGoal };
+
+  // Estimation du temps sur le rythme RÉELLEMENT atteignable (après plancher).
+  const effectiveDailyDeficit =
+    input.goalType === "loss"
+      ? Math.round(tdee) - targetKcal
+      : input.goalType === "gain"
+        ? targetKcal - Math.round(tdee)
+        : 0;
+  const effectiveWeeklyRate =
+    effectiveDailyDeficit > 0 ? (effectiveDailyDeficit * 7) / KCAL_PER_KG : null;
+  const weeksToGoal =
+    input.targetKg && effectiveWeeklyRate ? Math.ceil(input.targetKg / effectiveWeeklyRate) : null;
+
+  return { bmr, tdee, targetKcal, ...macros, weeksToGoal, floorApplied };
 }

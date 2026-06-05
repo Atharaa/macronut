@@ -1,6 +1,6 @@
 import { ObjectifForm, type ObjectifFormValues } from "@/components/ObjectifForm";
 import { getCurrentUser, getLatestWeight } from "@/lib/user";
-import { estimateWeeksToGoal } from "@/lib/nutrition";
+import { ageFromBirthDate, computeTargets, type Targets } from "@/lib/nutrition";
 
 function toDateInput(d: Date | null): string {
   return d ? d.toISOString().slice(0, 10) : "";
@@ -25,27 +25,40 @@ export default async function ObjectifPage() {
     leanMassKg: user.leanMassKg?.toString() ?? "",
   };
 
-  const weeks = goal != null ? estimateWeeksToGoal(goal.targetKg, goal.weeklyRateKg) : null;
+  // Besoins calculés en direct depuis le profil + la dernière pesée.
+  let targets: Targets | null = null;
+  if (goal && user.sex && user.birthDate && user.heightCm != null && latestWeight) {
+    targets = computeTargets({
+      sex: user.sex,
+      weightKg: latestWeight.weightKg,
+      heightCm: user.heightCm,
+      ageYears: ageFromBirthDate(user.birthDate),
+      activityLevel: goal.activityLevel,
+      goalType: goal.type,
+      weeklyRateKg: goal.weeklyRateKg,
+      targetKg: goal.targetKg,
+      leanMassKg: user.leanMassKg,
+    });
+  }
 
-  const chips =
-    goal?.targetKcal != null
-      ? [
-          { label: "Protéines", value: goal.targetProteinG, cls: "bg-indigo-50 text-indigo-700" },
-          { label: "Glucides", value: goal.targetCarbG, cls: "bg-amber-50 text-amber-700" },
-          { label: "Lipides", value: goal.targetFatG, cls: "bg-rose-50 text-rose-700" },
-          { label: "Fibres", value: goal.targetFiberG, cls: "bg-emerald-50 text-emerald-700" },
-        ]
-      : [];
+  const chips = targets
+    ? [
+        { label: "Protéines", value: targets.proteinG, cls: "bg-indigo-50 text-indigo-700" },
+        { label: "Glucides", value: targets.carbG, cls: "bg-amber-50 text-amber-700" },
+        { label: "Lipides", value: targets.fatG, cls: "bg-rose-50 text-rose-700" },
+        { label: "Fibres", value: targets.fiberG, cls: "bg-emerald-50 text-emerald-700" },
+      ]
+    : [];
 
   return (
     <main className="space-y-4 p-4">
       <h1 className="px-1 text-xl font-bold text-neutral-800">Objectif</h1>
 
-      {goal?.targetKcal != null && (
+      {targets && (
         <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lg shadow-emerald-500/20">
           <div className="text-xs font-medium uppercase tracking-wide text-white/75">Besoins quotidiens</div>
           <div className="mt-0.5 text-4xl font-bold">
-            {goal.targetKcal} <span className="text-lg font-medium text-white/80">kcal</span>
+            {targets.targetKcal} <span className="text-lg font-medium text-white/80">kcal</span>
           </div>
           <div className="mt-4 grid grid-cols-4 gap-2">
             {chips.map((c) => (
@@ -55,12 +68,20 @@ export default async function ObjectifPage() {
               </div>
             ))}
           </div>
-          {weeks != null && (
+          {targets.weeksToGoal != null && (
             <div className="mt-4 rounded-xl bg-white/15 px-3 py-2 text-sm">
-              ⏱️ Environ <b>{weeks} semaine{weeks > 1 ? "s" : ""}</b> pour atteindre l'objectif.
+              ⏱️ Environ <b>{targets.weeksToGoal} semaine{targets.weeksToGoal > 1 ? "s" : ""}</b> pour atteindre l'objectif.
             </div>
           )}
         </section>
+      )}
+
+      {targets?.floorApplied && (
+        <div className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200">
+          ⚠️ Le rythme demandé pousse la cible sous ton <b>métabolisme de base</b> (~{Math.round(targets.bmr)} kcal).
+          Elle a été plafonnée à ce minimum. Pour une cible plus juste : réduis le rythme, ou si tu perds plus vite
+          que prévu, augmente ton niveau d'activité (il sous-estime sûrement ta dépense réelle).
+        </div>
       )}
 
       <ObjectifForm initial={initial} />

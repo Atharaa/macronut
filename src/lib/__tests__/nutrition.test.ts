@@ -97,6 +97,26 @@ describe("computeActivityKcal", () => {
   });
 });
 
+describe("computeTargets — garde-fou métabolisme de base", () => {
+  it("plafonne la cible au BMR quand le rythme est trop agressif", () => {
+    const t = computeTargets({
+      sex: "male",
+      weightKg: 109,
+      heightCm: 170,
+      ageYears: 27,
+      activityLevel: "sedentary",
+      goalType: "loss",
+      weeklyRateKg: 1,
+      targetKg: 35,
+      leanMassKg: 72,
+    });
+    // BMR = 10*109 + 6.25*170 - 5*27 + 5 = 2022.5 → plancher 2023
+    expect(t.targetKcal).toBe(Math.round(t.bmr));
+    expect(t.floorApplied).toBe(true);
+    expect(t.targetKcal).toBeGreaterThan(1327); // pas la valeur brute non plafonnée
+  });
+});
+
 describe("computeTargets (intégration)", () => {
   it("renvoie kcal et macros cohérents pour un profil complet", () => {
     const t = computeTargets({
