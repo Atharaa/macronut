@@ -128,6 +128,10 @@ export function sportLabel(key: string | null | undefined): string {
   return SPORTS.find((s) => s.key === key)?.label ?? "Sport";
 }
 
+export function sportMetByLabel(label: string | null | undefined): number {
+  return SPORTS.find((s) => s.label === label)?.met ?? DEFAULT_SPORT_MET;
+}
+
 /**
  * Estime la dépense énergétique NETTE d'une activité (la dépense « en plus » du repos,
  * pour ne pas surestimer).

@@ -1,8 +1,8 @@
-import { Footprints, Dumbbell } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { startOfToday } from "@/lib/date";
 import { ActivityForm } from "@/components/ActivityForm";
+import { ActivityItem } from "@/components/ActivityItem";
 
 export default async function ActivitePage() {
   const user = await getCurrentUser();
@@ -30,24 +30,16 @@ export default async function ActivitePage() {
       <ActivityForm />
 
       <ul className="space-y-2">
-        {entries.map((e) => {
-          const isSteps = e.type === "steps";
-          const Icon = isSteps ? Footprints : Dumbbell;
-          return (
-            <li
-              key={e.id}
-              className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800"
-            >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400">
-                <Icon size={18} strokeWidth={2.2} />
-              </span>
-              <span className="flex-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                {isSteps ? `${e.value} pas` : `${e.name ?? "Sport"} · ${e.value} min`}
-              </span>
-              <span className="text-sm font-semibold text-orange-600">+{e.estimatedKcal} kcal</span>
-            </li>
-          );
-        })}
+        {entries.map((e) => (
+          <ActivityItem
+            key={e.id}
+            id={e.id}
+            type={e.type}
+            name={e.name}
+            value={e.value}
+            estimatedKcal={e.estimatedKcal}
+          />
+        ))}
         {entries.length === 0 && (
           <li className="rounded-2xl bg-white p-6 text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:text-neutral-500 dark:ring-neutral-800">
             Aucune activité saisie aujourd'hui.
