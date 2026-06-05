@@ -68,13 +68,21 @@ export interface Macros {
   fiberG: number;
 }
 
-// Répartition « priorité protéines » : protéines selon le poids (muscle/satiété),
-// lipides au plancher hormonal (~25 % des kcal), glucides = variable d'ajustement.
-const PROTEIN_G_PER_KG = 1.8;
-const FAT_KCAL_RATIO = 0.25;
+// Répartition « priorité protéines » : protéines selon la masse sèche si connue
+// (2 g/kg), sinon repli sur le poids total (1,8 g/kg) ; lipides ~30 % des kcal ;
+// glucides = variable d'ajustement (le reste).
+const PROTEIN_G_PER_KG_LEAN = 2.0;
+const PROTEIN_G_PER_KG_BODY = 1.8;
+const FAT_KCAL_RATIO = 0.3;
 
-export function computeMacros(targetKcal: number, weightKg: number): Macros {
-  const proteinG = Math.round(PROTEIN_G_PER_KG * weightKg);
+export function computeMacros(
+  targetKcal: number,
+  weightKg: number,
+  leanMassKg?: number | null,
+): Macros {
+  const proteinG = leanMassKg
+    ? Math.round(PROTEIN_G_PER_KG_LEAN * leanMassKg)
+    : Math.round(PROTEIN_G_PER_KG_BODY * weightKg);
   const fatG = Math.round((FAT_KCAL_RATIO * targetKcal) / 9);
   const fiberG = Math.round((14 * targetKcal) / 1000);
   const remainingKcal = targetKcal - proteinG * 4 - fatG * 9;
@@ -119,6 +127,7 @@ export interface TargetsInput {
   goalType: GoalType;
   weeklyRateKg: number | null;
   targetKg?: number | null;
+  leanMassKg?: number | null;
 }
 
 export interface Targets extends Macros {
@@ -132,7 +141,7 @@ export function computeTargets(input: TargetsInput): Targets {
   const bmr = computeBmr(input);
   const tdee = computeTdee(bmr, input.activityLevel);
   const targetKcal = computeTargetKcal(tdee, input.goalType, input.weeklyRateKg);
-  const macros = computeMacros(targetKcal, input.weightKg);
+  const macros = computeMacros(targetKcal, input.weightKg, input.leanMassKg);
   const weeksToGoal = estimateWeeksToGoal(input.targetKg ?? null, input.weeklyRateKg);
   return { bmr, tdee, targetKcal, ...macros, weeksToGoal };
 }

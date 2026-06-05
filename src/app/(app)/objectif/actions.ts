@@ -21,6 +21,7 @@ const schema = z.object({
   goalType: z.enum(["loss", "gain", "maintain"]),
   targetKg: optionalPositive,
   weeklyRateKg: optionalPositive,
+  leanMassKg: optionalPositive,
 });
 
 export type ObjectifState = { error?: string; ok?: boolean };
@@ -41,6 +42,7 @@ export async function saveProfile(
     goalType: formData.get("goalType"),
     targetKg: formData.get("targetKg"),
     weeklyRateKg: formData.get("weeklyRateKg"),
+    leanMassKg: formData.get("leanMassKg"),
   });
 
   if (!parsed.success) {
@@ -62,13 +64,14 @@ export async function saveProfile(
     goalType: data.goalType,
     weeklyRateKg,
     targetKg,
+    leanMassKg: data.leanMassKg,
   });
 
   const today = startOfToday();
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { sex: data.sex, birthDate: data.birthDate, heightCm: data.heightCm },
+    data: { sex: data.sex, birthDate: data.birthDate, heightCm: data.heightCm, leanMassKg: data.leanMassKg },
   });
 
   await prisma.weightEntry.upsert({

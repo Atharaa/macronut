@@ -22,6 +22,7 @@ export default async function ObjectifPage() {
     goalType: goal?.type ?? "maintain",
     targetKg: goal?.targetKg?.toString() ?? "",
     weeklyRateKg: goal?.weeklyRateKg?.toString() ?? "",
+    leanMassKg: user.leanMassKg?.toString() ?? "",
   };
 
   const weeks = goal != null ? estimateWeeksToGoal(goal.targetKg, goal.weeklyRateKg) : null;

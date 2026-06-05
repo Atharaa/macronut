@@ -13,6 +13,7 @@ export interface ObjectifFormValues {
   goalType: string;
   targetKg: string;
   weeklyRateKg: string;
+  leanMassKg: string;
 }
 
 const inputCls =
@@ -70,10 +71,19 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
             <input type="number" name="heightCm" step="0.1" defaultValue={initial.heightCm} required className={inputCls} />
           </div>
         </div>
-        <div>
-          <span className={labelCls}>Poids actuel (kg)</span>
-          <input type="number" name="weightKg" step="0.1" defaultValue={initial.weightKg} required className={inputCls} />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <span className={labelCls}>Poids actuel (kg)</span>
+            <input type="number" name="weightKg" step="0.1" defaultValue={initial.weightKg} required className={inputCls} />
+          </div>
+          <div>
+            <span className={labelCls}>Masse sèche (kg)</span>
+            <input type="number" name="leanMassKg" step="0.1" defaultValue={initial.leanMassKg} placeholder="optionnel" className={inputCls} />
+          </div>
         </div>
+        <p className="text-xs text-neutral-400">
+          Masse sèche = poids hors graisse. Si renseignée, les protéines visent 2 g/kg de masse sèche (sinon 1,8 g/kg du poids).
+        </p>
       </section>
 
       {/* Objectif */}
