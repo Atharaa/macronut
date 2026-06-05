@@ -32,7 +32,8 @@ a {
     box-shadow 0.15s ease;
 }
 
-button:active {
+button:active,
+a:active {
   transform: scale(0.97);
 }
 
