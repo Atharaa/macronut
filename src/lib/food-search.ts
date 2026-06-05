@@ -4,12 +4,15 @@ const STOPWORDS = new Set([
   "de", "du", "des", "la", "le", "les", "l", "au", "aux", "un", "une", "d", "et", "a", "the",
 ]);
 
-// Qualificatifs génériques : peuvent renforcer un match mais ne suffisent jamais seuls.
+// Mots peu distinctifs : peuvent renforcer un match mais ne suffisent jamais seuls.
 const QUALIFIERS = new Set([
   "nature", "naturel", "naturels", "cuit", "cuite", "cuits", "cuites", "cru", "crue",
   "grille", "grillee", "grilles", "grillees", "frais", "fraiche", "fraiches",
   "blanc", "blanche", "complet", "complete", "demi", "ecreme", "ecremee",
   "light", "allege", "allegee", "bio", "entier", "entiere", "sec", "seche",
+  // Termes génériques de produits (sinon faux match sur le seul mot commun)
+  "proteine", "proteines", "poudre", "poudres", "boisson", "boissons",
+  "shaker", "complement", "alimentaire", "rehydrate", "rehydratee",
 ]);
 
 export function normalize(text: string): string {

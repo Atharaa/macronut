@@ -9,6 +9,7 @@ const foods = [
   { name: "Yaourt nature" },
   { name: "Yaourt grec" },
   { name: "Pomme" },
+  { name: "Protéine de soja, réhydratée" },
 ];
 
 describe("normalize", () => {
@@ -41,5 +42,13 @@ describe("findBestMatch", () => {
 
   it("ne matche pas un produit inconnu sur 'blanc' seul", () => {
     expect(findBestMatch("clear whey protein", foods)).toBeNull();
+  });
+
+  it("clear whey protéine ne matche PAS la protéine de soja (mot générique)", () => {
+    expect(findBestMatch("shaker clear whey protéine bulk", foods)).toBeNull();
+  });
+
+  it("matche encore la protéine de soja sur 'soja' (mot distinctif)", () => {
+    expect(findBestMatch("protéine de soja", foods)?.name).toBe("Protéine de soja, réhydratée");
   });
 });
