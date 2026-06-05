@@ -46,9 +46,12 @@ const SCHEMA = {
 };
 
 const SYSTEM = `Tu extrais d'un message en français la liste des aliments mangés avec leur quantité en grammes.
-- Donne un nom d'aliment générique et simple, en français, SANS la quantité (ex: "blanc de poulet grillé", "riz basmati").
+- Donne un nom d'aliment en français, SANS la quantité chiffrée (ex: "riz basmati", "yaourt grec").
+- IMPORTANT : conserve dans le nom les mots qui définissent le PRODUIT ou sa transformation, car ils changent les valeurs nutritionnelles : "en tranches", "fumé", "pané", "cru", "grillé", "rôti", "séché", "en conserve", "allégé"… Ne les supprime pas.
+  Exemple : "tranche de blanc de poulet" → nom "blanc de poulet en tranches" (produit de charcuterie), PAS "blanc de poulet grillé".
+- "tranche", "filet", "portion", "part" décrivent la FORME du produit, pas une quantité : garde-les dans le nom et estime les grammes à part.
 - Convertis toute mesure (portions, cuillères, unités, ml) en une estimation raisonnable en grammes.
-- Une banane ≈ 120 g, un œuf ≈ 60 g, une cuillère à soupe d'huile ≈ 14 g, un yaourt ≈ 125 g.
+- Une banane ≈ 120 g, un œuf ≈ 60 g, une cuillère à soupe d'huile ≈ 14 g, un yaourt ≈ 125 g, une tranche de charcuterie ≈ 30 g.
 - Si aucune quantité n'est précisée, estime une portion courante.
 - Ne renvoie que les aliments réellement mentionnés.
 - Pour chaque aliment, indique isGeneric : false si c'est une préparation maison / personnelle / une recette propre à l'utilisateur (« ma sauce », « maison », « fait maison », « perso »), true sinon.`;

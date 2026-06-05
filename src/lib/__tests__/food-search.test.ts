@@ -12,6 +12,7 @@ const foods = [
   { name: "Protéine de soja, réhydratée" },
   { name: "Laitue iceberg, crue" },
   { name: "Salade César au poulet (salade verte, fromage, croûtons, sauce), préemballée" },
+  { name: "Jambon de poulet ou Blanc de poulet en tranche" },
 ];
 
 describe("normalize", () => {
@@ -60,5 +61,11 @@ describe("findBestMatch", () => {
 
   it("le poulet reste un mot distinctif (non pénalisé)", () => {
     expect(findBestMatch("blanc de poulet grillé", foods)?.name).toBe("Blanc de poulet grillé");
+  });
+
+  it("'blanc de poulet en tranches' → produit charcuterie, pas le grillé", () => {
+    expect(findBestMatch("blanc de poulet en tranches", foods)?.name).toBe(
+      "Jambon de poulet ou Blanc de poulet en tranche",
+    );
   });
 });
