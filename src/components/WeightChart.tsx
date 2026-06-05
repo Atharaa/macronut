@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -16,10 +17,25 @@ export interface WeightPoint {
   weightKg: number;
 }
 
+function useIsDark() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const el = document.documentElement;
+    const update = () => setDark(el.classList.contains("dark"));
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
+
 export function WeightChart({ data, target }: { data: WeightPoint[]; target?: number | null }) {
+  const dark = useIsDark();
+
   if (data.length === 0) {
     return (
-      <div className="flex h-56 flex-col items-center justify-center rounded-3xl bg-white text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100">
+      <div className="flex h-56 flex-col items-center justify-center rounded-3xl bg-white text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:text-neutral-500 dark:ring-neutral-800">
         <span className="mb-1 text-3xl">📈</span>
         Aucune pesée pour l'instant.
         <br />
@@ -33,8 +49,12 @@ export function WeightChart({ data, target }: { data: WeightPoint[]; target?: nu
   const hi = Math.max(...weights, ...(target != null ? [target] : []));
   const pad = Math.max(0.5, (hi - lo) * 0.15);
 
+  const grid = dark ? "#1f2937" : "#f1f5f9";
+  const tick = dark ? "#9ca3af" : "#94a3b8";
+  const tooltipBg = dark ? "#111418" : "#ffffff";
+
   return (
-    <div className="h-64 w-full rounded-3xl bg-white p-4 pr-3 shadow-sm ring-1 ring-neutral-100">
+    <div className="h-64 w-full rounded-3xl bg-white p-4 pr-3 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -16 }}>
           <defs>
@@ -47,17 +67,17 @@ export function WeightChart({ data, target }: { data: WeightPoint[]; target?: nu
               <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" vertical={false} />
+          <CartesianGrid strokeDasharray="4 4" stroke={grid} vertical={false} />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={{ fontSize: 11, fill: tick }}
             axisLine={false}
             tickLine={false}
             minTickGap={24}
           />
           <YAxis
             domain={[Math.floor(lo - pad), Math.ceil(hi + pad)]}
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={{ fontSize: 11, fill: tick }}
             axisLine={false}
             tickLine={false}
             width={40}
@@ -66,10 +86,12 @@ export function WeightChart({ data, target }: { data: WeightPoint[]; target?: nu
             contentStyle={{
               borderRadius: 14,
               border: "none",
-              boxShadow: "0 8px 24px rgba(15,23,42,.12)",
+              background: tooltipBg,
+              boxShadow: "0 8px 24px rgba(0,0,0,.25)",
               fontSize: 12,
             }}
-            labelStyle={{ color: "#64748b", fontWeight: 600 }}
+            labelStyle={{ color: tick, fontWeight: 600 }}
+            itemStyle={{ color: dark ? "#e5e7eb" : "#0f172a" }}
             formatter={(v) => [`${v} kg`, "Poids"]}
           />
           {target != null && (
@@ -87,8 +109,8 @@ export function WeightChart({ data, target }: { data: WeightPoint[]; target?: nu
             stroke="url(#wStroke)"
             strokeWidth={3}
             fill="url(#wFill)"
-            dot={{ r: 3, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
-            activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
+            dot={{ r: 3, fill: "#10b981", strokeWidth: 2, stroke: dark ? "#111418" : "#fff" }}
+            activeDot={{ r: 6, strokeWidth: 2, stroke: dark ? "#111418" : "#fff" }}
             animationDuration={600}
           />
         </AreaChart>

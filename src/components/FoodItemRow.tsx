@@ -15,7 +15,7 @@ export interface FoodItemRowProps {
 
 const r = (n: number) => Math.round(n);
 const numCls =
-  "w-full rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100";
+  "w-full rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 dark:border-neutral-700 dark:bg-neutral-800 dark:focus:bg-neutral-900";
 
 export function FoodItemRow(props: FoodItemRowProps) {
   const [editing, setEditing] = useState(false);
@@ -27,7 +27,7 @@ export function FoodItemRow(props: FoodItemRowProps) {
   return (
     <li className="text-sm">
       <div className="flex items-center justify-between gap-2">
-        <span className="min-w-0 flex-1 truncate text-neutral-700">
+        <span className="min-w-0 flex-1 truncate text-neutral-700 dark:text-neutral-200">
           {props.name} <span className="text-neutral-400">· {r(props.quantityG)} g</span>
           {props.badge === "ai" && (
             <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
@@ -41,7 +41,7 @@ export function FoodItemRow(props: FoodItemRowProps) {
           )}
         </span>
         <span className="flex shrink-0 items-center gap-2.5">
-          <span className="tabular-nums font-medium text-neutral-600">{r(props.kcal)} kcal</span>
+          <span className="tabular-nums font-medium text-neutral-600 dark:text-neutral-300">{r(props.kcal)} kcal</span>
           <button
             type="button"
             aria-label="Modifier"
@@ -60,7 +60,7 @@ export function FoodItemRow(props: FoodItemRowProps) {
       </div>
 
       {editing && (
-        <form action={formAction} className="mt-2 space-y-2 rounded-xl bg-neutral-50 p-3 ring-1 ring-neutral-100">
+        <form action={formAction} className="mt-2 space-y-2 rounded-xl bg-neutral-50 p-3 ring-1 ring-neutral-100 dark:bg-neutral-800/50 dark:ring-neutral-800">
           <input type="hidden" name="itemId" value={props.id} />
           <div className="flex items-center gap-2">
             <label className="w-24 text-xs font-medium text-neutral-500">Quantité (g)</label>

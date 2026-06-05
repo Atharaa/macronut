@@ -17,12 +17,12 @@ function TabContent({ active, label, Icon }: { active: boolean; label: string; I
   return (
     <span
       className={`flex flex-col items-center gap-0.5 py-1.5 text-[11px] font-medium ${
-        highlight ? "text-emerald-600" : "text-neutral-400"
+        highlight ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-400 dark:text-neutral-500"
       }`}
     >
       <span
         className={`flex h-8 w-12 items-center justify-center rounded-full transition-colors ${
-          highlight ? "bg-emerald-100" : "bg-transparent"
+          highlight ? "bg-emerald-100 dark:bg-emerald-500/15" : "bg-transparent"
         } ${pending ? "animate-pulse" : ""}`}
       >
         <Icon size={20} strokeWidth={highlight ? 2.4 : 2} />
@@ -35,7 +35,7 @@ function TabContent({ active, label, Icon }: { active: boolean; label: string; I
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md justify-around border-t border-neutral-200/70 bg-white/85 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-lg">
+    <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md justify-around border-t border-neutral-200/70 bg-white/85 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-lg dark:border-neutral-800 dark:bg-neutral-900/85">
       {tabs.map(({ href, label, icon: Icon }) => (
         <Link key={href} href={href} prefetch className="flex flex-1 justify-center">
           <TabContent active={pathname === href} label={label} Icon={Icon} />

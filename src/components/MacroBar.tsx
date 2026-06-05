@@ -13,8 +13,8 @@ export function MacroBar({ label, consumed, target, barClass, trackClass }: Macr
   return (
     <div className="space-y-1">
       <div className="flex items-baseline justify-between text-xs">
-        <span className="font-semibold text-neutral-700">{label}</span>
-        <span className="text-neutral-400">
+        <span className="font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
+        <span className="text-neutral-400 dark:text-neutral-500">
           {r(consumed)} / {target != null ? r(target) : "—"} g
         </span>
       </div>

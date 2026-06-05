@@ -17,8 +17,8 @@ export interface ObjectifFormValues {
 }
 
 const inputCls =
-  "mt-1 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100";
-const labelCls = "text-xs font-semibold uppercase tracking-wide text-neutral-500";
+  "mt-1 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 dark:border-neutral-700 dark:bg-neutral-800 dark:focus:bg-neutral-900";
+const labelCls = "text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400";
 
 function Segment({
   name,
@@ -34,7 +34,7 @@ function Segment({
   return (
     <label className="relative">
       <input type="radio" name={name} value={value} defaultChecked={defaultChecked} className="peer sr-only" />
-      <span className="block cursor-pointer rounded-lg py-2 text-center text-sm font-medium text-neutral-500 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm">
+      <span className="block cursor-pointer rounded-lg py-2 text-center text-sm font-medium text-neutral-500 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm dark:text-neutral-400 dark:peer-checked:bg-neutral-700 dark:peer-checked:text-emerald-400">
         {label}
       </span>
     </label>
@@ -50,12 +50,12 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
   return (
     <form action={formAction} className="space-y-5">
       {/* Profil */}
-      <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
-        <h2 className="text-sm font-bold text-neutral-800">Profil</h2>
+      <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
+        <h2 className="text-sm font-bold text-neutral-800 dark:text-neutral-100">Profil</h2>
 
         <div>
           <span className={labelCls}>Sexe</span>
-          <div className="mt-1 grid grid-cols-2 gap-1 rounded-xl bg-neutral-100 p-1">
+          <div className="mt-1 grid grid-cols-2 gap-1 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800">
             <Segment name="sex" value="male" label="Homme" defaultChecked={initial.sex !== "female"} />
             <Segment name="sex" value="female" label="Femme" defaultChecked={initial.sex === "female"} />
           </div>
@@ -81,17 +81,17 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
             <input type="number" name="leanMassKg" step="0.1" defaultValue={initial.leanMassKg} placeholder="optionnel" className={inputCls} />
           </div>
         </div>
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-neutral-400 dark:text-neutral-500">
           Masse sèche = poids hors graisse. Si renseignée, les protéines visent 2 g/kg de masse sèche (sinon 1,8 g/kg du poids).
         </p>
       </section>
 
       {/* Objectif */}
-      <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
-        <h2 className="text-sm font-bold text-neutral-800">Objectif</h2>
+      <section className="space-y-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
+        <h2 className="text-sm font-bold text-neutral-800 dark:text-neutral-100">Objectif</h2>
 
         <div>
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-neutral-100 p-1">
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800">
             <Segment name="goalType" value="loss" label="Perte" defaultChecked={initial.goalType === "loss"} />
             <Segment name="goalType" value="maintain" label="Maintien" defaultChecked={initial.goalType === "maintain" || !initial.goalType} />
             <Segment name="goalType" value="gain" label="Prise" defaultChecked={initial.goalType === "gain"} />
@@ -108,7 +108,7 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
             <input type="number" name="weeklyRateKg" step="0.05" defaultValue={initial.weeklyRateKg} placeholder="—" className={inputCls} />
           </div>
         </div>
-        <p className="text-xs text-neutral-400">Laisse ces deux champs vides en maintien.</p>
+        <p className="text-xs text-neutral-400 dark:text-neutral-500">Laisse ces deux champs vides en maintien.</p>
 
         <div>
           <span className={labelCls}>Niveau d'activité</span>

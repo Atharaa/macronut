@@ -43,16 +43,16 @@ export default async function ObjectifPage() {
 
   const chips = targets
     ? [
-        { label: "Protéines", value: targets.proteinG, cls: "bg-indigo-50 text-indigo-700" },
-        { label: "Glucides", value: targets.carbG, cls: "bg-amber-50 text-amber-700" },
-        { label: "Lipides", value: targets.fatG, cls: "bg-rose-50 text-rose-700" },
-        { label: "Fibres", value: targets.fiberG, cls: "bg-emerald-50 text-emerald-700" },
+        { label: "Protéines", value: targets.proteinG, cls: "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300" },
+        { label: "Glucides", value: targets.carbG, cls: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" },
+        { label: "Lipides", value: targets.fatG, cls: "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300" },
+        { label: "Fibres", value: targets.fiberG, cls: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" },
       ]
     : [];
 
   return (
     <main className="space-y-4 p-4">
-      <h1 className="px-1 text-xl font-bold text-neutral-800">Objectif</h1>
+      <h1 className="px-1 text-xl font-bold text-neutral-800 dark:text-neutral-100">Objectif</h1>
 
       {targets && (
         <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lg shadow-emerald-500/20">
@@ -77,7 +77,7 @@ export default async function ObjectifPage() {
       )}
 
       {targets?.floorApplied && (
-        <div className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200">
+        <div className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-800 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/20">
           ⚠️ Le rythme demandé pousse la cible sous ton <b>métabolisme de base</b> (~{Math.round(targets.bmr)} kcal).
           Elle a été plafonnée à ce minimum. Pour une cible plus juste : réduis le rythme, ou si tu perds plus vite
           que prévu, augmente ton niveau d'activité (il sous-estime sûrement ta dépense réelle).

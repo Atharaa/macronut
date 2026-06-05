@@ -31,10 +31,10 @@ export default async function PoidsPage() {
   return (
     <main className="space-y-4 p-4">
       <div className="flex items-end justify-between px-1">
-        <h1 className="text-xl font-bold text-neutral-800">Poids</h1>
+        <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">Poids</h1>
         {latest && (
           <div className="text-right">
-            <div className="text-2xl font-bold text-neutral-800">{latest.weightKg} kg</div>
+            <div className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">{latest.weightKg} kg</div>
             {delta != null && delta !== 0 && (
               <div className={`text-xs font-medium ${delta < 0 ? "text-emerald-600" : "text-rose-500"}`}>
                 {delta > 0 ? "+" : ""}

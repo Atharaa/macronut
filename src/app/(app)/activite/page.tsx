@@ -17,7 +17,7 @@ export default async function ActivitePage() {
 
   return (
     <main className="space-y-4 p-4">
-      <h1 className="px-1 text-xl font-bold text-neutral-800">Activité du jour</h1>
+      <h1 className="px-1 text-xl font-bold text-neutral-800 dark:text-neutral-100">Activité du jour</h1>
 
       <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 to-rose-500 p-5 text-white shadow-lg shadow-orange-500/20">
         <div className="text-xs font-medium uppercase tracking-wide text-white/75">Dépense estimée</div>
@@ -36,12 +36,12 @@ export default async function ActivitePage() {
           return (
             <li
               key={e.id}
-              className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-neutral-100"
+              className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400">
                 <Icon size={18} strokeWidth={2.2} />
               </span>
-              <span className="flex-1 text-sm font-medium text-neutral-700">
+              <span className="flex-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
                 {isSteps ? `${e.value} pas` : `${e.name ?? "Sport"} · ${e.value} min`}
               </span>
               <span className="text-sm font-semibold text-orange-600">+{e.estimatedKcal} kcal</span>
@@ -49,7 +49,7 @@ export default async function ActivitePage() {
           );
         })}
         {entries.length === 0 && (
-          <li className="rounded-2xl bg-white p-6 text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100">
+          <li className="rounded-2xl bg-white p-6 text-center text-sm text-neutral-400 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:text-neutral-500 dark:ring-neutral-800">
             Aucune activité saisie aujourd'hui.
           </li>
         )}

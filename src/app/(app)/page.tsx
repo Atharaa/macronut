@@ -61,10 +61,10 @@ export default async function JourneePage() {
   }).format(new Date());
 
   const macroBars = [
-    { label: "Protéines", consumed: consumed.proteinG, target: goal?.targetProteinG, barClass: "bg-indigo-500", trackClass: "bg-indigo-100" },
-    { label: "Glucides", consumed: consumed.carbG, target: goal?.targetCarbG, barClass: "bg-amber-500", trackClass: "bg-amber-100" },
-    { label: "Lipides", consumed: consumed.fatG, target: goal?.targetFatG, barClass: "bg-rose-500", trackClass: "bg-rose-100" },
-    { label: "Fibres", consumed: consumed.fiberG, target: goal?.targetFiberG, barClass: "bg-emerald-500", trackClass: "bg-emerald-100" },
+    { label: "Protéines", consumed: consumed.proteinG, target: goal?.targetProteinG, barClass: "bg-indigo-500", trackClass: "bg-indigo-100 dark:bg-indigo-950/50" },
+    { label: "Glucides", consumed: consumed.carbG, target: goal?.targetCarbG, barClass: "bg-amber-500", trackClass: "bg-amber-100 dark:bg-amber-950/50" },
+    { label: "Lipides", consumed: consumed.fatG, target: goal?.targetFatG, barClass: "bg-rose-500", trackClass: "bg-rose-100 dark:bg-rose-950/50" },
+    { label: "Fibres", consumed: consumed.fiberG, target: goal?.targetFiberG, barClass: "bg-emerald-500", trackClass: "bg-emerald-100 dark:bg-emerald-950/50" },
   ];
 
   return (
@@ -106,7 +106,7 @@ export default async function JourneePage() {
 
       {/* Macros */}
       {hasGoal && (
-        <section className="grid grid-cols-2 gap-x-5 gap-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+        <section className="grid grid-cols-2 gap-x-5 gap-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
           {macroBars.map((m) => (
             <MacroBar key={m.label} {...m} />
           ))}
@@ -125,26 +125,26 @@ export default async function JourneePage() {
           const fib = items.reduce((s, i) => s + i.fiberG, 0);
           const Icon = m.icon;
           return (
-            <section key={m.type} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100">
+            <section key={m.type} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
               <div className="flex items-center gap-3">
                 <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${m.chip}`}>
                   <Icon size={18} strokeWidth={2.2} />
                 </span>
                 <div className="flex-1">
-                  <div className="font-semibold text-neutral-800">{m.label}</div>
+                  <div className="font-semibold text-neutral-800 dark:text-neutral-100">{m.label}</div>
                   {items.length > 0 && (
-                    <div className="text-[11px] text-neutral-400">
+                    <div className="text-[11px] text-neutral-400 dark:text-neutral-500">
                       P {r(p)} · G {r(c)} · L {r(f)} · F {r(fib)}
                     </div>
                   )}
                 </div>
-                <div className="text-sm font-semibold text-neutral-500">
+                <div className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">
                   {items.length ? `${r(mealKcal)} kcal` : ""}
                 </div>
               </div>
 
               {items.length > 0 && (
-                <ul className="mt-3 space-y-2 border-t border-neutral-100 pt-3">
+                <ul className="mt-3 space-y-2 border-t border-neutral-100 dark:border-neutral-800 pt-3">
                   {items.map((i) => {
                     const per100 = i.reference
                       ? {
