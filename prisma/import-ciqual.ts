@@ -40,15 +40,20 @@ async function main() {
   const records = rows
     .filter((r) => r[COL.code] != null && r[COL.name])
     .map((r) => {
-      const protein = num(r[COL.protein]) || num(r[COL.proteinJones]);
+      const proteinG = num(r[COL.protein]) || num(r[COL.proteinJones]);
+      const carbG = num(r[COL.carb]);
+      const fatG = num(r[COL.fat]);
+      const fiberG = num(r[COL.fiber]);
+      // Énergie manquante dans CIQUAL → estimée depuis les macros (Atwater 4/4/9).
+      const kcal = num(r[COL.kcal]) || Math.round(4 * proteinG + 4 * carbG + 9 * fatG);
       return {
         ciqualId: `ciqual-${r[COL.code]}`,
         name: String(r[COL.name]).trim(),
-        kcal: num(r[COL.kcal]),
-        proteinG: protein,
-        carbG: num(r[COL.carb]),
-        fatG: num(r[COL.fat]),
-        fiberG: num(r[COL.fiber]),
+        kcal,
+        proteinG,
+        carbG,
+        fatG,
+        fiberG,
         source: "ciqual" as const,
       };
     });

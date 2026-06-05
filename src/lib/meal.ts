@@ -7,8 +7,8 @@ import { scaleMacros } from "@/lib/macros";
 
 export interface AddFoodsResult {
   added: number;
-  estimated: string[]; // aliments dont les valeurs ont été estimées par l'IA (à vérifier)
-  failed: string[]; // aliments impossibles à estimer (ajoutés à 0 kcal)
+  estimated: string[]; // aliments courants dont les valeurs ont été estimées par l'IA (à vérifier)
+  needsInput: string[]; // produits perso/maison (ou non estimables) : valeurs à saisir par l'utilisateur
 }
 
 function aiCiqualId(name: string): string {
@@ -27,7 +27,7 @@ export async function addFoodsFromText(
   text: string,
 ): Promise<AddFoodsResult> {
   const parsed = await parseMealText(text);
-  if (parsed.length === 0) return { added: 0, estimated: [], failed: [] };
+  if (parsed.length === 0) return { added: 0, estimated: [], needsInput: [] };
 
   const meal = await prisma.meal.upsert({
     where: { userId_date_type: { userId, date, type: mealType } },
@@ -37,12 +37,14 @@ export async function addFoodsFromText(
 
   const refs: FoodReference[] = await prisma.foodReference.findMany();
   const estimated: string[] = [];
-  const failed: string[] = [];
+  const needsInput: string[] = [];
 
   for (const item of parsed) {
     let ref = findBestMatch(item.name, refs);
 
-    if (!ref) {
+    // Absent de la base : on n'estime que les aliments courants. Les produits
+    // perso/maison (isGeneric === false) restent à compléter par l'utilisateur.
+    if (!ref && item.isGeneric) {
       const est = await estimateFoodMacros(item.name);
       if (est) {
         ref = await prisma.foodReference.upsert({
@@ -61,7 +63,7 @@ export async function addFoodsFromText(
         data: { mealId: meal.id, referenceId: ref.id, name: ref.name, quantityG: item.quantityG, ...m },
       });
     } else {
-      failed.push(item.name);
+      needsInput.push(item.name);
       await prisma.foodItem.create({
         data: {
           mealId: meal.id,
@@ -77,5 +79,5 @@ export async function addFoodsFromText(
     }
   }
 
-  return { added: parsed.length, estimated, failed };
+  return { added: parsed.length, estimated, needsInput };
 }

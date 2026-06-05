@@ -6,6 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 export interface ParsedFood {
   name: string;
   quantityG: number;
+  isGeneric: boolean; // false = produit perso / fait maison → valeurs à saisir par l'utilisateur
 }
 
 /** Interface minimale du client utilisée — permet d'injecter un faux client en test. */
@@ -29,8 +30,13 @@ const SCHEMA = {
         properties: {
           name: { type: "string", description: "Nom de l'aliment en français, sans la quantité" },
           quantityG: { type: "number", description: "Quantité estimée en grammes" },
+          isGeneric: {
+            type: "boolean",
+            description:
+              "true si c'est un aliment/produit courant dont on peut connaître des valeurs nutritionnelles typiques. false si c'est un produit fait maison, une recette personnelle ou un produit dont l'utilisateur indique qu'il est à lui (ex: « ma sauce », « maison », « perso ») — dans ce cas ses valeurs ne peuvent pas être devinées.",
+          },
         },
-        required: ["name", "quantityG"],
+        required: ["name", "quantityG", "isGeneric"],
         additionalProperties: false,
       },
     },
@@ -44,7 +50,8 @@ const SYSTEM = `Tu extrais d'un message en français la liste des aliments mang�
 - Convertis toute mesure (portions, cuillères, unités, ml) en une estimation raisonnable en grammes.
 - Une banane ≈ 120 g, un œuf ≈ 60 g, une cuillère à soupe d'huile ≈ 14 g, un yaourt ≈ 125 g.
 - Si aucune quantité n'est précisée, estime une portion courante.
-- Ne renvoie que les aliments réellement mentionnés.`;
+- Ne renvoie que les aliments réellement mentionnés.
+- Pour chaque aliment, indique isGeneric : false si c'est une préparation maison / personnelle / une recette propre à l'utilisateur (« ma sauce », « maison », « fait maison », « perso »), true sinon.`;
 
 export function isAiConfigured(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
@@ -72,5 +79,5 @@ export async function parseMealText(
 
   return data.items
     .filter((i) => typeof i.name === "string" && typeof i.quantityG === "number" && i.quantityG > 0)
-    .map((i) => ({ name: i.name.trim(), quantityG: i.quantityG }));
+    .map((i) => ({ name: i.name.trim(), quantityG: i.quantityG, isGeneric: i.isGeneric !== false }));
 }

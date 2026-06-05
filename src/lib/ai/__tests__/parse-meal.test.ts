@@ -21,8 +21,8 @@ describe("parseMealText", () => {
     });
     const result = await parseMealText("150g de poulet et 200g de riz", client);
     expect(result).toEqual([
-      { name: "blanc de poulet grillé", quantityG: 150 },
-      { name: "riz basmati", quantityG: 200 },
+      { name: "blanc de poulet grillé", quantityG: 150, isGeneric: true },
+      { name: "riz basmati", quantityG: 200, isGeneric: true },
     ]);
   });
 
@@ -35,7 +35,15 @@ describe("parseMealText", () => {
       ],
     });
     const result = await parseMealText("une banane", client);
-    expect(result).toEqual([{ name: "banane", quantityG: 120 }]);
+    expect(result).toEqual([{ name: "banane", quantityG: 120, isGeneric: true }]);
+  });
+
+  it("conserve isGeneric=false pour un produit perso/maison", async () => {
+    const client = fakeClient({
+      items: [{ name: "sauce creamy deluxe", quantityG: 100, isGeneric: false }],
+    });
+    const result = await parseMealText("100g de ma sauce creamy deluxe", client);
+    expect(result).toEqual([{ name: "sauce creamy deluxe", quantityG: 100, isGeneric: false }]);
   });
 
   it("renvoie un tableau vide si pas de bloc texte", async () => {

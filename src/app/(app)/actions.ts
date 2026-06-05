@@ -23,7 +23,7 @@ export type MealState = {
   error?: string;
   ok?: boolean;
   estimated?: string[];
-  failed?: string[];
+  needsInput?: string[];
 };
 
 export async function addMeal(
@@ -46,7 +46,7 @@ export async function addMeal(
     const result = await addFoodsFromText(user.id, startOfToday(), mealType, text);
     revalidatePath("/");
     if (result.added === 0) return { error: "Aucun aliment détecté." };
-    return { ok: true, estimated: result.estimated, failed: result.failed };
+    return { ok: true, estimated: result.estimated, needsInput: result.needsInput };
   } catch {
     return { error: "Erreur lors de l'analyse. Réessaie." };
   }

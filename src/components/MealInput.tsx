@@ -32,9 +32,9 @@ export function MealInput({ mealType }: { mealType: string }) {
           Estimé par l'IA (vérifie via ✎) : {state.estimated.join(", ")}
         </p>
       )}
-      {state?.failed && state.failed.length > 0 && (
+      {state?.needsInput && state.needsInput.length > 0 && (
         <p className="mt-1 text-xs text-red-600">
-          À compléter manuellement (✎) : {state.failed.join(", ")}
+          Produit perso à compléter — saisis les valeurs via ✎ : {state.needsInput.join(", ")}
         </p>
       )}
     </div>
