@@ -13,7 +13,7 @@ const DEFAULT_WEIGHT_KG = 70;
 const schema = z.object({
   type: z.enum(["sport", "steps"]),
   value: numPositive,
-  sport: z.string().optional(),
+  sport: z.string().nullish(),
 });
 
 export type ActivityState = { error?: string; ok?: boolean };

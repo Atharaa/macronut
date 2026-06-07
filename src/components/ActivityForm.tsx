@@ -39,9 +39,9 @@ export function ActivityForm() {
       </div>
       <div className="flex items-center gap-2">
         <input
-          type="number"
+          type="text"
           name="value"
-          step="1"
+          inputMode="numeric"
           required
           placeholder={type === "sport" ? "Durée (minutes)" : "Nombre de pas"}
           className={`min-w-0 flex-1 ${fieldCls}`}
