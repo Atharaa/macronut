@@ -5,18 +5,18 @@ import { Plus, Loader2 } from "lucide-react";
 import { addRecentFood, type MealState } from "@/app/(app)/actions";
 import type { RecentFood } from "@/lib/recents";
 
-export function RecentChips({ mealType, recents }: { mealType: string; recents: RecentFood[] }) {
+export function RecentChips({ mealType, date, recents }: { mealType: string; date: string; recents: RecentFood[] }) {
   if (recents.length === 0) return null;
   return (
     <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
       {recents.map((food) => (
-        <RecentChip key={food.referenceId} mealType={mealType} food={food} />
+        <RecentChip key={food.referenceId} mealType={mealType} date={date} food={food} />
       ))}
     </div>
   );
 }
 
-function RecentChip({ mealType, food }: { mealType: string; food: RecentFood }) {
+function RecentChip({ mealType, date, food }: { mealType: string; date: string; food: RecentFood }) {
   const [, formAction, pending] = useActionState<MealState | undefined, FormData>(
     addRecentFood,
     undefined,
@@ -25,6 +25,7 @@ function RecentChip({ mealType, food }: { mealType: string; food: RecentFood }) 
     <form action={formAction} className="shrink-0">
       <input type="hidden" name="referenceId" value={food.referenceId} />
       <input type="hidden" name="mealType" value={mealType} />
+      <input type="hidden" name="date" value={date} />
       <input type="hidden" name="quantityG" value={food.quantityG} />
       <button
         type="submit"

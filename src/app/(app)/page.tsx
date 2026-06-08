@@ -3,11 +3,12 @@ import Link from "next/link";
 import { Sunrise, Apple, UtensilsCrossed, Cookie, Moon, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
-import { startOfToday } from "@/lib/date";
+import { parseDateParam, toDateParam, addDays } from "@/lib/date";
 import { MealInput } from "@/components/MealInput";
 import { FoodItemRow } from "@/components/FoodItemRow";
 import { MacroBar } from "@/components/MacroBar";
 import { RecentChips } from "@/components/RecentChips";
+import { DaySelector } from "@/components/DaySelector";
 import { buildRecents } from "@/lib/recents";
 import { ACTIVITY_REINTEGRATION } from "@/lib/nutrition";
 
@@ -21,20 +22,26 @@ const MEALS: { type: MealType; label: string; icon: LucideIcon; chip: string }[]
 
 const r = (n: number) => Math.round(n);
 
-export default async function JourneePage() {
+export default async function JourneePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ d?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) return <main className="p-4">Non authentifié.</main>;
 
-  const today = startOfToday();
-  const since = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const { d } = await searchParams;
+  const selectedDate = parseDateParam(d);
+  const dateParam = toDateParam(selectedDate);
+  const since = addDays(selectedDate, -30);
   const [meals, activities, recentMeals] = await Promise.all([
     prisma.meal.findMany({
-      where: { userId: user.id, date: today },
+      where: { userId: user.id, date: selectedDate },
       include: { items: { include: { reference: true } } },
     }),
-    prisma.activityEntry.findMany({ where: { userId: user.id, date: today } }),
+    prisma.activityEntry.findMany({ where: { userId: user.id, date: selectedDate } }),
     prisma.meal.findMany({
-      where: { userId: user.id, date: { gte: since } },
+      where: { userId: user.id, date: { gte: since, lte: selectedDate } },
       include: { items: { include: { reference: true } } },
     }),
   ]);
@@ -66,7 +73,7 @@ export default async function JourneePage() {
     weekday: "long",
     day: "numeric",
     month: "long",
-  }).format(new Date());
+  }).format(selectedDate);
 
   const macroBars = [
     { label: "Protéines", consumed: consumed.proteinG, target: goal?.targetProteinG, barClass: "bg-indigo-500", trackClass: "bg-indigo-100 dark:bg-indigo-950/50" },
@@ -77,6 +84,8 @@ export default async function JourneePage() {
 
   return (
     <main className="space-y-4 p-4">
+      <DaySelector date={dateParam} basePath="/" />
+
       {/* En-tête dégradé : calories restantes */}
       <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lg shadow-emerald-500/20">
         <div className="text-xs font-medium uppercase tracking-wide text-white/75 first-letter:uppercase">
@@ -189,8 +198,8 @@ export default async function JourneePage() {
                 </ul>
               )}
 
-              <MealInput mealType={m.type} />
-              <RecentChips mealType={m.type} recents={recents.get(m.type) ?? []} />
+              <MealInput mealType={m.type} date={dateParam} />
+              <RecentChips mealType={m.type} date={dateParam} recents={recents.get(m.type) ?? []} />
             </section>
           );
         })}

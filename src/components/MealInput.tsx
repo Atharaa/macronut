@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { addMeal, type MealState } from "@/app/(app)/actions";
 
-export function MealInput({ mealType }: { mealType: string }) {
+export function MealInput({ mealType, date }: { mealType: string; date: string }) {
   const [state, formAction, pending] = useActionState<MealState | undefined, FormData>(
     addMeal,
     undefined,
@@ -13,6 +13,7 @@ export function MealInput({ mealType }: { mealType: string }) {
     <div className="mt-3">
       <form action={formAction} className="flex items-center gap-2">
         <input type="hidden" name="mealType" value={mealType} />
+        <input type="hidden" name="date" value={date} />
         <input
           name="text"
           required
