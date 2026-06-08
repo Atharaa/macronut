@@ -42,7 +42,9 @@ export async function addFoodsFromText(
   for (const item of parsed) {
     // Un produit perso/maison ne peut correspondre qu'à TES propres références
     // (manuelles), jamais à un aliment CIQUAL/IA au hasard.
-    const pool = item.isGeneric ? refs : refs.filter((r) => r.source === "manual");
+    const pool = item.isGeneric
+      ? refs.filter((r) => r.source !== "openfoodfacts")
+      : refs.filter((r) => r.source === "manual");
     let ref = findBestMatch(item.name, pool);
 
     // Absent : on n'estime que les aliments courants. Les produits perso/maison
