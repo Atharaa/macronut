@@ -133,3 +133,47 @@ export async function saveFoodMacros(
   revalidatePath("/");
   return { ok: true };
 }
+
+const recentSchema = z.object({
+  referenceId: z.string().min(1),
+  mealType: z.enum(["breakfast", "morning_snack", "lunch", "afternoon_snack", "dinner"]),
+  quantityG: numPositive,
+});
+
+/**
+ * Ré-ajout en un tap d'un aliment récent : recrée un FoodItem du jour à partir
+ * d'une FoodReference (source de vérité des macros) et de la quantité fournie.
+ */
+export async function addRecentFood(
+  _prev: MealState | undefined,
+  formData: FormData,
+): Promise<MealState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Non authentifié." };
+
+  const parsed = recentSchema.safeParse({
+    referenceId: formData.get("referenceId"),
+    mealType: formData.get("mealType"),
+    quantityG: formData.get("quantityG"),
+  });
+  if (!parsed.success) return { error: "Données invalides." };
+
+  const ref = await prisma.foodReference.findUnique({ where: { id: parsed.data.referenceId } });
+  if (!ref) return { error: "Aliment introuvable." };
+
+  const meal = await prisma.meal.upsert({
+    where: {
+      userId_date_type: { userId: user.id, date: startOfToday(), type: parsed.data.mealType },
+    },
+    update: {},
+    create: { userId: user.id, date: startOfToday(), type: parsed.data.mealType },
+  });
+
+  const m = scaleMacros(ref, parsed.data.quantityG);
+  await prisma.foodItem.create({
+    data: { mealId: meal.id, referenceId: ref.id, name: ref.name, quantityG: parsed.data.quantityG, ...m },
+  });
+
+  revalidatePath("/");
+  return { ok: true };
+}
