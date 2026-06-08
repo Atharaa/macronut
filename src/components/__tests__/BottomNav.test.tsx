@@ -2,7 +2,10 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BottomNav } from "@/components/BottomNav";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 describe("BottomNav", () => {
   it("affiche les 4 onglets", () => {
