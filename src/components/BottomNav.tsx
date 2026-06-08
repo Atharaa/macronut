@@ -1,7 +1,7 @@
 "use client";
 
 import Link, { useLinkStatus } from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { CalendarDays, TrendingUp, Flame, Target, type LucideIcon } from "lucide-react";
 
 const tabs: { href: string; label: string; icon: LucideIcon }[] = [
@@ -34,10 +34,13 @@ function TabContent({ active, label, Icon }: { active: boolean; label: string; I
 
 export function BottomNav() {
   const pathname = usePathname();
+  const d = useSearchParams().get("d");
+  const hrefFor = (href: string) =>
+    d && (href === "/" || href === "/activite") ? `${href}?d=${d}` : href;
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md justify-around border-t border-neutral-200/70 bg-white/85 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-lg dark:border-neutral-800 dark:bg-neutral-900/85">
       {tabs.map(({ href, label, icon: Icon }) => (
-        <Link key={href} href={href} prefetch className="flex flex-1 justify-center">
+        <Link key={href} href={hrefFor(href)} prefetch className="flex flex-1 justify-center">
           <TabContent active={pathname === href} label={label} Icon={Icon} />
         </Link>
       ))}
