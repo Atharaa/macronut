@@ -145,7 +145,7 @@ const recentSchema = z.object({
  * Ré-ajout en un tap d'un aliment récent : recrée un FoodItem du jour à partir
  * d'une FoodReference (source de vérité des macros) et de la quantité fournie.
  */
-export async function addRecentFood(
+export async function addFoodByReference(
   _prev: MealState | undefined,
   formData: FormData,
 ): Promise<MealState> {

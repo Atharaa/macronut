@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Plus, Loader2 } from "lucide-react";
-import { addRecentFood, type MealState } from "@/app/(app)/actions";
+import { addFoodByReference, type MealState } from "@/app/(app)/actions";
 import type { RecentFood } from "@/lib/recents";
 
 export function RecentChips({ mealType, date, recents }: { mealType: string; date: string; recents: RecentFood[] }) {
@@ -18,7 +18,7 @@ export function RecentChips({ mealType, date, recents }: { mealType: string; dat
 
 function RecentChip({ mealType, date, food }: { mealType: string; date: string; food: RecentFood }) {
   const [, formAction, pending] = useActionState<MealState | undefined, FormData>(
-    addRecentFood,
+    addFoodByReference,
     undefined,
   );
   return (
