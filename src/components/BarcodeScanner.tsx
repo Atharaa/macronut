@@ -18,6 +18,8 @@ export function BarcodeScanner({
   onClose: () => void;
 }) {
   const busyRef = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const controlsRef = useRef<{ stop: () => void } | null>(null);
   const [manual, setManual] = useState("");
   const [status, setStatus] = useState<Status>("scanning");
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +54,36 @@ export function BarcodeScanner({
   }
 
   useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { BrowserMultiFormatReader } = await import("@zxing/browser");
+        const reader = new BrowserMultiFormatReader();
+        if (!videoRef.current) return;
+        const controls = await reader.decodeFromConstraints(
+          { video: { facingMode: "environment" } },
+          videoRef.current,
+          (result) => {
+            if (result && !cancelled) handleCode(result.getText());
+          },
+        );
+        if (cancelled) controls.stop();
+        else controlsRef.current = controls;
+      } catch {
+        if (!cancelled) setError("Caméra indisponible. Saisis le code à la main.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+      controlsRef.current?.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (status !== "scanning") controlsRef.current?.stop();
+  }, [status]);
+
+  useEffect(() => {
     if (addState?.ok) onClose();
   }, [addState, onClose]);
 
@@ -68,6 +100,12 @@ export function BarcodeScanner({
 
       {status !== "found" && (
         <div className="flex flex-1 flex-col items-center justify-center gap-4">
+          <video
+            ref={videoRef}
+            className="aspect-square w-full max-w-xs rounded-2xl bg-black object-cover"
+            muted
+            playsInline
+          />
           {status === "looking" && <p className="text-sm text-white/80">Recherche…</p>}
           {error && (
             <div className="flex flex-col items-center gap-2">
