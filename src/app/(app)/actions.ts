@@ -5,7 +5,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
-import { startOfToday } from "@/lib/date";
+import { parseDateParam } from "@/lib/date";
 import { addFoodsFromText } from "@/lib/meal";
 import { isAiConfigured } from "@/lib/ai/parse-meal";
 import { scaleMacros } from "@/lib/macros";
@@ -40,11 +40,12 @@ export async function addMeal(
 
   const mealType = formData.get("mealType") as MealType | null;
   const text = (formData.get("text") as string | null)?.trim();
+  const date = parseDateParam((formData.get("date") as string | null) || undefined);
   if (!mealType || !MEAL_TYPES.includes(mealType)) return { error: "Repas inconnu." };
   if (!text) return { error: "Saisie vide." };
 
   try {
-    const result = await addFoodsFromText(user.id, startOfToday(), mealType, text);
+    const result = await addFoodsFromText(user.id, date, mealType, text);
     revalidatePath("/");
     if (result.added === 0) return { error: "Aucun aliment détecté." };
     return { ok: true, estimated: result.estimated, needsInput: result.needsInput };
@@ -161,12 +162,13 @@ export async function addRecentFood(
   const ref = await prisma.foodReference.findUnique({ where: { id: parsed.data.referenceId } });
   if (!ref) return { error: "Aliment introuvable." };
 
+  const date = parseDateParam((formData.get("date") as string | null) || undefined);
   const meal = await prisma.meal.upsert({
     where: {
-      userId_date_type: { userId: user.id, date: startOfToday(), type: parsed.data.mealType },
+      userId_date_type: { userId: user.id, date, type: parsed.data.mealType },
     },
     update: {},
-    create: { userId: user.id, date: startOfToday(), type: parsed.data.mealType },
+    create: { userId: user.id, date, type: parsed.data.mealType },
   });
 
   const m = scaleMacros(ref, parsed.data.quantityG);

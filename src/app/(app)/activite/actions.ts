@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getLatestWeight } from "@/lib/user";
-import { startOfToday } from "@/lib/date";
+import { parseDateParam } from "@/lib/date";
 import { computeActivityKcal, sportMet, sportLabel, sportMetByLabel } from "@/lib/nutrition";
 import { numPositive } from "@/lib/validation";
 
@@ -32,6 +32,7 @@ export async function addActivity(
   });
   if (!parsed.success) return { error: "Activité invalide." };
 
+  const date = parseDateParam((formData.get("date") as string | null) || undefined);
   const latest = await getLatestWeight(user.id);
   const weightKg = latest?.weightKg ?? DEFAULT_WEIGHT_KG;
   const isSport = parsed.data.type === "sport";
@@ -41,7 +42,7 @@ export async function addActivity(
   await prisma.activityEntry.create({
     data: {
       userId: user.id,
-      date: startOfToday(),
+      date,
       type: parsed.data.type,
       name: isSport ? sportLabel(parsed.data.sport) : null,
       value: parsed.data.value,
