@@ -7,6 +7,8 @@ import { startOfToday } from "@/lib/date";
 import { MealInput } from "@/components/MealInput";
 import { FoodItemRow } from "@/components/FoodItemRow";
 import { MacroBar } from "@/components/MacroBar";
+import { RecentChips } from "@/components/RecentChips";
+import { buildRecents } from "@/lib/recents";
 import { ACTIVITY_REINTEGRATION } from "@/lib/nutrition";
 
 const MEALS: { type: MealType; label: string; icon: LucideIcon; chip: string }[] = [
@@ -24,13 +26,19 @@ export default async function JourneePage() {
   if (!user) return <main className="p-4">Non authentifié.</main>;
 
   const today = startOfToday();
-  const [meals, activities] = await Promise.all([
+  const since = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const [meals, activities, recentMeals] = await Promise.all([
     prisma.meal.findMany({
       where: { userId: user.id, date: today },
       include: { items: { include: { reference: true } } },
     }),
     prisma.activityEntry.findMany({ where: { userId: user.id, date: today } }),
+    prisma.meal.findMany({
+      where: { userId: user.id, date: { gte: since } },
+      include: { items: { include: { reference: true } } },
+    }),
   ]);
+  const recents = buildRecents(recentMeals);
   const goal = user.goal;
 
   const mealByType = new Map(meals.map((m) => [m.type, m]));
@@ -182,6 +190,7 @@ export default async function JourneePage() {
               )}
 
               <MealInput mealType={m.type} />
+              <RecentChips mealType={m.type} recents={recents.get(m.type) ?? []} />
             </section>
           );
         })}
