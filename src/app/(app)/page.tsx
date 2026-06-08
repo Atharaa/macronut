@@ -9,6 +9,7 @@ import { FoodItemRow } from "@/components/FoodItemRow";
 import { MacroBar } from "@/components/MacroBar";
 import { RecentChips } from "@/components/RecentChips";
 import { DaySelector } from "@/components/DaySelector";
+import { MealScanButton } from "@/components/MealScanButton";
 import { buildRecents } from "@/lib/recents";
 import { ACTIVITY_REINTEGRATION } from "@/lib/nutrition";
 
@@ -199,6 +200,7 @@ export default async function JourneePage({
               )}
 
               <MealInput mealType={m.type} date={dateParam} />
+              <MealScanButton mealType={m.type} date={dateParam} />
               <RecentChips mealType={m.type} date={dateParam} recents={recents.get(m.type) ?? []} />
             </section>
           );
