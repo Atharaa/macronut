@@ -8,7 +8,7 @@ import { SPORTS } from "@/lib/nutrition";
 const fieldCls =
   "rounded-xl border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 px-3 py-2.5 text-sm outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-100 dark:focus:bg-neutral-900";
 
-export function ActivityForm() {
+export function ActivityForm({ date }: { date: string }) {
   const [state, formAction, pending] = useActionState<ActivityState | undefined, FormData>(
     addActivity,
     undefined,
@@ -17,6 +17,7 @@ export function ActivityForm() {
 
   return (
     <form action={formAction} className="space-y-2 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-neutral-100 dark:bg-neutral-900 dark:ring-neutral-800">
+      <input type="hidden" name="date" value={date} />
       <div className="flex gap-2">
         <select
           name="type"
