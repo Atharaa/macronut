@@ -8,6 +8,7 @@ export interface FoodItemRowProps {
   id: string;
   name: string;
   quantityG: number;
+  portions?: number | null;
   kcal: number;
   per100: { kcal: number; proteinG: number; carbG: number; fatG: number; fiberG: number };
   badge?: "ai" | "unknown";
@@ -24,12 +25,16 @@ export function FoodItemRow(props: FoodItemRowProps) {
     saveFoodMacros,
     undefined,
   );
+  const isDish = props.portions != null;
+  const amount = isDish
+    ? `${props.portions} portion${props.portions! > 1 ? "s" : ""}`
+    : `${r(props.quantityG)} g`;
 
   return (
     <li className="text-sm">
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 flex-1 truncate text-neutral-700 dark:text-neutral-200">
-          {props.name} <span className="text-neutral-400">· {r(props.quantityG)} g</span>
+          {props.name} <span className="text-neutral-400">· {amount}</span>
           {props.badge === "ai" && (
             <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
               estimé
@@ -43,14 +48,16 @@ export function FoodItemRow(props: FoodItemRowProps) {
         </span>
         <span className="flex shrink-0 items-center gap-1">
           <span className="mr-1 tabular-nums font-medium text-neutral-600 dark:text-neutral-300">{r(props.kcal)} kcal</span>
-          <button
-            type="button"
-            aria-label="Modifier"
-            onClick={() => setEditing((e) => !e)}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-emerald-600 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-emerald-400"
-          >
-            <Pencil size={17} />
-          </button>
+          {!isDish && (
+            <button
+              type="button"
+              aria-label="Modifier"
+              onClick={() => setEditing((e) => !e)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-emerald-600 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-emerald-400"
+            >
+              <Pencil size={17} />
+            </button>
+          )}
           <form action={deleteFoodItem} className="flex">
             <input type="hidden" name="id" value={props.id} />
             <button

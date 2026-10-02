@@ -12,7 +12,7 @@ export function MealScanButton({ mealType, date }: { mealType: string; date: str
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Scanner un code-barres"
-        className="mt-2 flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400"
+        className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400"
       >
         <ScanBarcode size={16} />
         Scanner un produit

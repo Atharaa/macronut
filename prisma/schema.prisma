@@ -61,6 +61,7 @@ model User {
   weightEntries   WeightEntry[]
   activityEntries ActivityEntry[]
   meals           Meal[]
+  dishes          Dish[]
 }
 
 model Goal {
@@ -122,6 +123,9 @@ model FoodItem {
   meal        Meal           @relation(fields: [mealId], references: [id], onDelete: Cascade)
   referenceId String?
   reference   FoodReference? @relation(fields: [referenceId], references: [id])
+  dishId      String?
+  dish        Dish?          @relation(fields: [dishId], references: [id], onDelete: SetNull)
+  portions    Float?
   name        String
   quantityG   Float
   kcal        Float
@@ -144,4 +148,19 @@ model FoodReference {
   items    FoodItem[]
 
   @@index([name])
+}
+
+model Dish {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  kcal      Float
+  proteinG  Float
+  carbG     Float
+  fatG      Float
+  createdAt DateTime   @default(now())
+  items     FoodItem[]
+
+  @@index([userId])
 }

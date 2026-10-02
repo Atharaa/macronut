@@ -8,11 +8,12 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("BottomNav", () => {
-  it("affiche les 4 onglets", () => {
+  it("affiche les 5 onglets", () => {
     render(<BottomNav />);
     expect(screen.getByText("Journée")).toBeInTheDocument();
     expect(screen.getByText("Poids")).toBeInTheDocument();
     expect(screen.getByText("Activité")).toBeInTheDocument();
+    expect(screen.getByText("Plats")).toBeInTheDocument();
     expect(screen.getByText("Objectif")).toBeInTheDocument();
   });
 });

@@ -179,3 +179,53 @@ export async function addFoodByReference(
   revalidatePath("/");
   return { ok: true };
 }
+
+const dishItemSchema = z.object({
+  dishId: z.string().min(1),
+  mealType: z.enum(["breakfast", "morning_snack", "lunch", "afternoon_snack", "dinner"]),
+  portions: numPositive,
+});
+
+/** Ajoute un plat perso (valeurs par portion) au repas, multiplié par le nombre de portions. */
+export async function addDishToMeal(
+  _prev: MealState | undefined,
+  formData: FormData,
+): Promise<MealState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Non authentifié." };
+
+  const parsed = dishItemSchema.safeParse({
+    dishId: formData.get("dishId"),
+    mealType: formData.get("mealType"),
+    portions: formData.get("portions"),
+  });
+  if (!parsed.success) return { error: "Données invalides." };
+
+  const dish = await prisma.dish.findFirst({ where: { id: parsed.data.dishId, userId: user.id } });
+  if (!dish) return { error: "Plat introuvable." };
+
+  const date = parseDateParam((formData.get("date") as string | null) || undefined);
+  const meal = await prisma.meal.upsert({
+    where: {
+      userId_date_type: { userId: user.id, date, type: parsed.data.mealType },
+    },
+    update: {},
+    create: { userId: user.id, date, type: parsed.data.mealType },
+  });
+
+  // scaleMacros raisonne en grammes pour 100 g : 1 portion = 100.
+  const m = scaleMacros({ ...dish, fiberG: 0 }, parsed.data.portions * 100);
+  await prisma.foodItem.create({
+    data: {
+      mealId: meal.id,
+      dishId: dish.id,
+      name: dish.name,
+      portions: parsed.data.portions,
+      quantityG: 0,
+      ...m,
+    },
+  });
+
+  revalidatePath("/");
+  return { ok: true };
+}

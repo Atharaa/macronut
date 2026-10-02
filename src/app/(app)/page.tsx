@@ -10,6 +10,7 @@ import { MacroBar } from "@/components/MacroBar";
 import { RecentChips } from "@/components/RecentChips";
 import { DaySelector } from "@/components/DaySelector";
 import { MealScanButton } from "@/components/MealScanButton";
+import { MealDishButton } from "@/components/MealDishButton";
 import { buildRecents } from "@/lib/recents";
 import { ACTIVITY_REINTEGRATION } from "@/lib/nutrition";
 
@@ -35,7 +36,7 @@ export default async function JourneePage({
   const selectedDate = parseDateParam(d);
   const dateParam = toDateParam(selectedDate);
   const since = addDays(selectedDate, -30);
-  const [meals, activities, recentMeals] = await Promise.all([
+  const [meals, activities, recentMeals, dishes] = await Promise.all([
     prisma.meal.findMany({
       where: { userId: user.id, date: selectedDate },
       include: { items: { include: { reference: true } } },
@@ -44,6 +45,11 @@ export default async function JourneePage({
     prisma.meal.findMany({
       where: { userId: user.id, date: { gte: since, lte: selectedDate } },
       include: { items: { include: { reference: true } } },
+    }),
+    prisma.dish.findMany({
+      where: { userId: user.id },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, kcal: true, proteinG: true, carbG: true, fatG: true },
     }),
   ]);
   const recents = buildRecents(recentMeals);
@@ -182,13 +188,18 @@ export default async function JourneePage({
                           }
                         : { kcal: 0, proteinG: 0, carbG: 0, fatG: 0, fiberG: 0 };
                     const badge: "ai" | "unknown" | undefined =
-                      i.reference?.source === "ai" ? "ai" : !i.referenceId ? "unknown" : undefined;
+                      i.reference?.source === "ai"
+                        ? "ai"
+                        : !i.referenceId && i.portions == null
+                          ? "unknown"
+                          : undefined;
                     return (
                       <FoodItemRow
                         key={i.id}
                         id={i.id}
                         name={i.name}
                         quantityG={i.quantityG}
+                        portions={i.portions}
                         kcal={i.kcal}
                         per100={per100}
                         badge={badge}
@@ -200,7 +211,10 @@ export default async function JourneePage({
               )}
 
               <MealInput mealType={m.type} date={dateParam} />
-              <MealScanButton mealType={m.type} date={dateParam} />
+              <div className="mt-2 flex items-center gap-4">
+                <MealScanButton mealType={m.type} date={dateParam} />
+                <MealDishButton mealType={m.type} date={dateParam} dishes={dishes} />
+              </div>
               <RecentChips mealType={m.type} date={dateParam} recents={recents.get(m.type) ?? []} />
             </section>
           );
