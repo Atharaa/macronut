@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { numMin0 } from "@/lib/validation";
+import { searchFoods } from "@/lib/food-search";
+import { perServing, type PickedFood, type PortionMacros } from "@/lib/recipe";
 
 const dishSchema = z.object({
   name: z.string().trim().min(1),
@@ -47,4 +49,81 @@ export async function deleteDish(formData: FormData): Promise<void> {
   await prisma.dish.deleteMany({ where: { id, userId: user.id } });
   revalidatePath("/plats");
   revalidatePath("/");
+}
+
+/** Recherche d'un ingrédient par nom dans la base (CIQUAL, aliments perso, produits scannés). */
+export async function searchFoodReferences(query: string): Promise<PickedFood[]> {
+  const user = await getCurrentUser();
+  if (!user || query.trim().length < 2) return [];
+  const refs = await prisma.foodReference.findMany();
+  return searchFoods(query, refs).map((r) => ({
+    referenceId: r.id,
+    name: r.name,
+    per100g: { kcal: r.kcal, proteinG: r.proteinG, carbG: r.carbG, fatG: r.fatG, fiberG: r.fiberG },
+    servingG: null,
+  }));
+}
+
+const recipeSchema = z.object({
+  id: z.string().min(1).optional(),
+  name: z.string().trim().min(1),
+  servings: z.number().int().positive(),
+  ingredients: z
+    .array(
+      z.object({
+        referenceId: z.string().min(1),
+        quantityG: z.number().positive(),
+        pieces: z.number().positive().nullable(),
+      }),
+    )
+    .min(1),
+});
+
+export type RecipeInput = z.infer<typeof recipeSchema>;
+type PreparedRecipe = RecipeInput & { macros: PortionMacros };
+
+/** Valide la recette, vérifie la propriété et calcule les macros par portion depuis la base. */
+async function prepareRecipe(userId: string, input: unknown): Promise<PreparedRecipe | { error: string }> {
+  const parsed = recipeSchema.safeParse(input);
+  if (!parsed.success) return { error: "Recette invalide." };
+
+  const { id, ingredients, servings } = parsed.data;
+  const [owned, refs] = await Promise.all([
+    id ? prisma.dish.findFirst({ where: { id, userId } }) : null,
+    prisma.foodReference.findMany({ where: { id: { in: ingredients.map((i) => i.referenceId) } } }),
+  ]);
+  const byId = new Map(refs.map((r) => [r.id, r]));
+  if ((id && !owned) || ingredients.some((i) => !byId.has(i.referenceId))) {
+    return { error: "Recette ou ingrédient introuvable." };
+  }
+
+  const lines = ingredients.map((i) => ({ per100g: byId.get(i.referenceId)!, quantityG: i.quantityG }));
+  return { ...parsed.data, macros: perServing(lines, servings) };
+}
+
+export async function saveRecipe(input: RecipeInput): Promise<DishState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Non authentifié." };
+
+  const recipe = await prepareRecipe(user.id, input);
+  if ("error" in recipe) return recipe;
+
+  const data = {
+    name: recipe.name,
+    servings: recipe.servings,
+    ...recipe.macros,
+    ingredients: { create: recipe.ingredients },
+  };
+  if (recipe.id) {
+    await prisma.$transaction([
+      prisma.dishIngredient.deleteMany({ where: { dishId: recipe.id } }),
+      prisma.dish.update({ where: { id: recipe.id }, data }),
+    ]);
+  } else {
+    await prisma.dish.create({ data: { userId: user.id, ...data } });
+  }
+
+  revalidatePath("/plats");
+  revalidatePath("/");
+  return { ok: true };
 }

@@ -83,3 +83,22 @@ export function findBestMatch<T extends NamedFood>(query: string, foods: T[]): T
 
   return best;
 }
+
+/**
+ * Recherche par nom pour une liste de choix : tous les mots saisis doivent apparaître
+ * dans le nom. Les noms commençant par le premier mot, puis les plus courts, d'abord.
+ */
+export function searchFoods<T extends NamedFood>(query: string, foods: T[], limit = 20): T[] {
+  const tokens = normalize(query).split(" ").filter((t) => t.length >= 2);
+  if (tokens.length === 0) return [];
+  return foods
+    .map((food) => ({ food, name: normalize(food.name) }))
+    .filter(({ name }) => tokens.every((t) => name.includes(t)))
+    .sort(
+      (a, b) =>
+        Number(!a.name.startsWith(tokens[0])) - Number(!b.name.startsWith(tokens[0])) ||
+        a.name.length - b.name.length,
+    )
+    .slice(0, limit)
+    .map(({ food }) => food);
+}

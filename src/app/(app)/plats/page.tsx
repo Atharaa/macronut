@@ -1,4 +1,5 @@
-import { Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Trash2, Pencil, BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { DishForm } from "@/components/DishForm";
@@ -19,6 +20,14 @@ export default async function PlatsPage() {
     <main className="space-y-4 p-4">
       <h1 className="px-1 text-xl font-bold text-neutral-800 dark:text-neutral-100">Mes plats</h1>
 
+      <Link
+        href="/plats/recette"
+        className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-emerald-500 py-3 text-sm font-medium text-white shadow-sm shadow-emerald-500/30"
+      >
+        <BookOpen size={16} />
+        Composer une recette
+      </Link>
+
       <DishForm />
 
       <ul className="space-y-2">
@@ -30,10 +39,20 @@ export default async function PlatsPage() {
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium text-neutral-700 dark:text-neutral-200">{d.name}</div>
               <div className="text-[11px] text-neutral-400 dark:text-neutral-500">
-                P {r(d.proteinG)} · G {r(d.carbG)} · L {r(d.fatG)}
+                {d.servings != null && `Recette · ${d.servings} portions · `}P {r(d.proteinG)} · G {r(d.carbG)} · L{" "}
+                {r(d.fatG)}
               </div>
             </div>
             <span className="mr-1 text-sm font-semibold text-neutral-600 dark:text-neutral-300">{r(d.kcal)} kcal</span>
+            {d.servings != null && (
+              <Link
+                href={`/plats/recette?id=${d.id}`}
+                aria-label="Modifier"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-emerald-600 active:bg-neutral-200 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-emerald-400"
+              >
+                <Pencil size={17} />
+              </Link>
+            )}
             <form action={deleteDish} className="flex">
               <input type="hidden" name="id" value={d.id} />
               <button

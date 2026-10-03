@@ -42,7 +42,7 @@ export function BottomNav() {
     <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md justify-around border-t border-neutral-200/70 bg-white/85 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-lg dark:border-neutral-800 dark:bg-neutral-900/85">
       {tabs.map(({ href, label, icon: Icon }) => (
         <Link key={href} href={hrefFor(href)} prefetch className="flex flex-1 justify-center">
-          <TabContent active={pathname === href} label={label} Icon={Icon} />
+          <TabContent active={pathname === href || (href !== "/" && pathname.startsWith(`${href}/`))} label={label} Icon={Icon} />
         </Link>
       ))}
     </nav>

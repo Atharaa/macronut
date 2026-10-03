@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalize, findBestMatch } from "@/lib/food-search";
+import { normalize, findBestMatch, searchFoods } from "@/lib/food-search";
 
 const foods = [
   { name: "Blanc de poulet grillé" },
@@ -72,5 +72,21 @@ describe("findBestMatch", () => {
     expect(findBestMatch("blanc de poulet en tranches", foods)?.name).toBe(
       "Jambon de poulet ou Blanc de poulet en tranche",
     );
+  });
+});
+
+describe("searchFoods", () => {
+  it("garde les aliments contenant tous les mots, sans accents", () => {
+    const names = searchFoods("riz cuit", foods).map((f) => f.name);
+    expect(names).toEqual(["Riz blanc cuit", "Riz basmati cuit"]);
+  });
+  it("met en premier les noms qui commencent par la recherche", () => {
+    expect(searchFoods("blanc", foods)[0].name).toBe("Blanc de poulet grillé");
+  });
+  it("à défaut, met en premier les noms les plus courts", () => {
+    expect(searchFoods("poulet", foods)[0].name).toBe("Couscous au poulet");
+  });
+  it("retourne une liste vide pour une recherche trop courte", () => {
+    expect(searchFoods("r", foods)).toEqual([]);
   });
 });
