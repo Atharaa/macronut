@@ -2,19 +2,34 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { WeightChart, type WeightPoint } from "@/components/WeightChart";
 import { WeightForm } from "@/components/WeightForm";
+import { MeasurementChart, type MeasurementPoint } from "@/components/MeasurementChart";
+import { MeasurementForm } from "@/components/MeasurementForm";
 
 export default async function PoidsPage() {
   const user = await getCurrentUser();
   if (!user) return <main className="p-4">Non authentifié.</main>;
 
-  const entries = await prisma.weightEntry.findMany({
-    where: { userId: user.id },
-    orderBy: { date: "asc" },
-  });
+  const [entries, measurements] = await Promise.all([
+    prisma.weightEntry.findMany({
+      where: { userId: user.id },
+      orderBy: { date: "asc" },
+    }),
+    prisma.bodyMeasurement.findMany({
+      where: { userId: user.id },
+      orderBy: { date: "asc" },
+    }),
+  ]);
 
   const data: WeightPoint[] = entries.map((e) => ({
     date: e.date.toISOString().slice(5, 10),
     weightKg: e.weightKg,
+  }));
+
+  const measurementData: MeasurementPoint[] = measurements.map((m) => ({
+    date: m.date.toISOString().slice(5, 10),
+    chestCm: m.chestCm,
+    waistCm: m.waistCm,
+    thighCm: m.thighCm,
   }));
 
   const latest = entries.at(-1);
@@ -46,6 +61,10 @@ export default async function PoidsPage() {
       </div>
       <WeightChart data={data} target={target} />
       <WeightForm />
+
+      <h2 className="px-1 pt-2 text-lg font-bold text-neutral-800 dark:text-neutral-100">Mensurations</h2>
+      <MeasurementChart data={measurementData} />
+      <MeasurementForm />
     </main>
   );
 }

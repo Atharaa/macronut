@@ -17,7 +17,7 @@ export interface WeightPoint {
   weightKg: number;
 }
 
-function useIsDark() {
+export function useIsDark() {
   const [dark, setDark] = useState(false);
   useEffect(() => {
     const el = document.documentElement;

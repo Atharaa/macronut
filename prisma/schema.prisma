@@ -62,6 +62,7 @@ model User {
   activityEntries ActivityEntry[]
   meals           Meal[]
   dishes          Dish[]
+  measurements    BodyMeasurement[]
 }
 
 model Goal {
@@ -87,6 +88,19 @@ model WeightEntry {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   date     DateTime
   weightKg Float
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model BodyMeasurement {
+  id      String   @id @default(cuid())
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date    DateTime
+  chestCm Float?
+  waistCm Float?
+  thighCm Float?
 
   @@unique([userId, date])
   @@index([userId, date])
