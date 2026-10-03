@@ -143,3 +143,25 @@ describe("computeTargets (intégration)", () => {
     expect(t.fatG).toBe(Math.round((0.3 * t.targetKcal) / 9));
   });
 });
+
+describe("computeTargets — objectif saisi manuellement", () => {
+  it("utilise la valeur saisie, même sous le métabolisme de base, et en déduit les macros", () => {
+    const t = computeTargets({
+      sex: "male",
+      weightKg: 107.2,
+      heightCm: 170,
+      ageYears: 27,
+      activityLevel: "moderate",
+      goalType: "loss",
+      weeklyRateKg: 1,
+      targetKg: 29.2,
+      manualKcal: 1900,
+    });
+    expect(t.targetKcal).toBe(1900);
+    expect(t.manual).toBe(true);
+    expect(t.floorApplied).toBe(false);
+    expect(t.weeksToGoal).toBeNull();
+    expect(t.proteinG).toBe(193); // 1.8 * 107.2
+    expect(t.fatG).toBe(Math.round((0.3 * 1900) / 9));
+  });
+});

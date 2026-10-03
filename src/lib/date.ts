@@ -37,3 +37,9 @@ export function parseDateParam(value?: string): Date {
   const day = startOfDay(parsed);
   return day.getTime() > startOfToday().getTime() ? startOfToday() : day;
 }
+
+/** Lundi (minuit UTC) de la semaine contenant la date. */
+export function startOfWeek(date: Date): Date {
+  const day = startOfDay(date);
+  return addDays(day, -((day.getUTCDay() + 6) % 7));
+}

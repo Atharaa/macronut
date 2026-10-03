@@ -14,6 +14,7 @@ export interface ObjectifFormValues {
   targetKg: string;
   weeklyRateKg: string;
   leanMassKg: string;
+  manualKcal: string;
 }
 
 const inputCls =
@@ -119,6 +120,15 @@ export function ObjectifForm({ initial }: { initial: ObjectifFormValues }) {
             <option value="active">Actif</option>
             <option value="very_active">Très actif</option>
           </select>
+        </div>
+
+        <div>
+          <span className={labelCls}>Objectif kcal / jour</span>
+          <input type="text" inputMode="numeric" name="manualKcal" defaultValue={initial.manualKcal} placeholder="automatique" className={inputCls} />
+          <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+            Si renseigné, remplace le calcul automatique (les macros sont recalculées à partir de cette valeur). Laisse
+            vide pour revenir au calcul.
+          </p>
         </div>
       </section>
 

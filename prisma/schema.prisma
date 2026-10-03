@@ -63,6 +63,8 @@ model User {
   meals           Meal[]
   dishes          Dish[]
   measurements    BodyMeasurement[]
+  manualIntakes   ManualDayIntake[]
+  weeklyReviews   WeeklyReview[]
 }
 
 model Goal {
@@ -75,6 +77,7 @@ model Goal {
   activityLevel  ActivityLevel @default(sedentary)
   startDate      DateTime      @default(now())
   targetKcal     Int?
+  manualKcal     Int?
   targetProteinG Int?
   targetCarbG    Int?
   targetFatG     Int?
@@ -104,6 +107,27 @@ model BodyMeasurement {
 
   @@unique([userId, date])
   @@index([userId, date])
+}
+
+// Total de kcal mangées saisi à la main pour un jour sans repas (bilan hebdo).
+model ManualDayIntake {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   DateTime
+  kcal   Float
+
+  @@unique([userId, date])
+}
+
+model WeeklyReview {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([userId, weekStart])
 }
 
 model ActivityEntry {

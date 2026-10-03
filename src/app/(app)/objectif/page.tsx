@@ -23,6 +23,7 @@ export default async function ObjectifPage() {
     targetKg: goal?.targetKg?.toString() ?? "",
     weeklyRateKg: goal?.weeklyRateKg?.toString() ?? "",
     leanMassKg: user.leanMassKg?.toString() ?? "",
+    manualKcal: goal?.manualKcal?.toString() ?? "",
   };
 
   // Besoins calculés en direct depuis le profil + la dernière pesée.
@@ -38,6 +39,7 @@ export default async function ObjectifPage() {
       weeklyRateKg: goal.weeklyRateKg,
       targetKg: goal.targetKg,
       leanMassKg: user.leanMassKg,
+      manualKcal: goal.manualKcal,
     });
   }
 
@@ -56,7 +58,9 @@ export default async function ObjectifPage() {
 
       {targets && (
         <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lg shadow-emerald-500/20">
-          <div className="text-xs font-medium uppercase tracking-wide text-white/75">Besoins quotidiens</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-white/75">
+            Besoins quotidiens{targets.manual && " · saisis manuellement"}
+          </div>
           <div className="mt-0.5 text-4xl font-bold">
             {targets.targetKcal} <span className="text-lg font-medium text-white/80">kcal</span>
           </div>

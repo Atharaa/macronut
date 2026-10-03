@@ -28,6 +28,7 @@ export async function recomputeGoalTargets(userId: string): Promise<void> {
     weeklyRateKg: user.goal.weeklyRateKg,
     targetKg: user.goal.targetKg,
     leanMassKg: user.leanMassKg,
+    manualKcal: user.goal.manualKcal,
   });
 
   await prisma.goal.update({

@@ -18,6 +18,7 @@ const schema = z.object({
   targetKg: optionalNumPositive,
   weeklyRateKg: optionalNumPositive,
   leanMassKg: optionalNumPositive,
+  manualKcal: optionalNumPositive,
 });
 
 export type ObjectifState = { error?: string; ok?: boolean };
@@ -39,6 +40,7 @@ export async function saveProfile(
     targetKg: formData.get("targetKg"),
     weeklyRateKg: formData.get("weeklyRateKg"),
     leanMassKg: formData.get("leanMassKg"),
+    manualKcal: formData.get("manualKcal"),
   });
 
   if (!parsed.success) {
@@ -49,6 +51,7 @@ export async function saveProfile(
   const isMaintain = data.goalType === "maintain";
   const targetKg = isMaintain ? null : data.targetKg;
   const weeklyRateKg = isMaintain ? null : data.weeklyRateKg;
+  const manualKcal = data.manualKcal ? Math.round(data.manualKcal) : null;
 
   const ageYears = ageFromBirthDate(data.birthDate);
   const targets = computeTargets({
@@ -61,6 +64,7 @@ export async function saveProfile(
     weeklyRateKg,
     targetKg,
     leanMassKg: data.leanMassKg,
+    manualKcal,
   });
 
   const today = startOfToday();
@@ -83,6 +87,7 @@ export async function saveProfile(
       targetKg,
       weeklyRateKg,
       activityLevel: data.activityLevel,
+      manualKcal,
       targetKcal: targets.targetKcal,
       targetProteinG: targets.proteinG,
       targetCarbG: targets.carbG,
@@ -95,6 +100,7 @@ export async function saveProfile(
       targetKg,
       weeklyRateKg,
       activityLevel: data.activityLevel,
+      manualKcal,
       targetKcal: targets.targetKcal,
       targetProteinG: targets.proteinG,
       targetCarbG: targets.carbG,

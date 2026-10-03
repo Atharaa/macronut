@@ -161,6 +161,7 @@ export interface TargetsInput {
   weeklyRateKg: number | null;
   targetKg?: number | null;
   leanMassKg?: number | null;
+  manualKcal?: number | null; // objectif saisi par l'utilisateur : remplace le calcul
 }
 
 export interface Targets extends Macros {
@@ -169,11 +170,20 @@ export interface Targets extends Macros {
   targetKcal: number;
   weeksToGoal: number | null;
   floorApplied: boolean; // true si le rythme demandé a été bridé par le plancher (métabolisme de base)
+  manual: boolean; // true si l'objectif kcal a été saisi à la main
 }
 
 export function computeTargets(input: TargetsInput): Targets {
   const bmr = computeBmr(input);
   const tdee = computeTdee(bmr, input.activityLevel);
+
+  if (input.manualKcal) {
+    // Objectif saisi à la main : pas de plancher ni d'estimation de durée (la dépense
+    // calculée par formule ne correspond pas à celle qui a servi à choisir la valeur).
+    const macros = computeMacros(input.manualKcal, input.weightKg, input.leanMassKg);
+    return { bmr, tdee, targetKcal: input.manualKcal, ...macros, weeksToGoal: null, floorApplied: false, manual: true };
+  }
+
   // Garde-fou : ne jamais descendre sous le métabolisme de base.
   const floorKcal = Math.max(KCAL_FLOOR, Math.round(bmr));
   const targetKcal = computeTargetKcal(tdee, input.goalType, input.weeklyRateKg, floorKcal);
@@ -181,8 +191,13 @@ export function computeTargets(input: TargetsInput): Targets {
   const floorApplied = input.goalType === "loss" && uncapped < targetKcal;
 
   const macros = computeMacros(targetKcal, input.weightKg, input.leanMassKg);
+  const weeksToGoal = estimateEffectiveWeeks(input, tdee, targetKcal);
 
-  // Estimation du temps sur le rythme RÉELLEMENT atteignable (après plancher).
+  return { bmr, tdee, targetKcal, ...macros, weeksToGoal, floorApplied, manual: false };
+}
+
+/** Estimation du temps sur le rythme RÉELLEMENT atteignable (après plancher). */
+function estimateEffectiveWeeks(input: TargetsInput, tdee: number, targetKcal: number): number | null {
   const effectiveDailyDeficit =
     input.goalType === "loss"
       ? Math.round(tdee) - targetKcal
@@ -191,8 +206,5 @@ export function computeTargets(input: TargetsInput): Targets {
         : 0;
   const effectiveWeeklyRate =
     effectiveDailyDeficit > 0 ? (effectiveDailyDeficit * 7) / KCAL_PER_KG : null;
-  const weeksToGoal =
-    input.targetKg && effectiveWeeklyRate ? Math.ceil(input.targetKg / effectiveWeeklyRate) : null;
-
-  return { bmr, tdee, targetKcal, ...macros, weeksToGoal, floorApplied };
+  return input.targetKg && effectiveWeeklyRate ? Math.ceil(input.targetKg / effectiveWeeklyRate) : null;
 }

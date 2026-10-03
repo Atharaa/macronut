@@ -1,9 +1,9 @@
 import type { MealType } from "@prisma/client";
 import Link from "next/link";
-import { Sunrise, Apple, UtensilsCrossed, Cookie, Moon, type LucideIcon } from "lucide-react";
+import { Sunrise, Apple, UtensilsCrossed, Cookie, Moon, ClipboardList, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
-import { parseDateParam, toDateParam, addDays } from "@/lib/date";
+import { parseDateParam, toDateParam, addDays, startOfToday, startOfWeek } from "@/lib/date";
 import { MealInput } from "@/components/MealInput";
 import { FoodItemRow } from "@/components/FoodItemRow";
 import { MacroBar } from "@/components/MacroBar";
@@ -36,7 +36,9 @@ export default async function JourneePage({
   const selectedDate = parseDateParam(d);
   const dateParam = toDateParam(selectedDate);
   const since = addDays(selectedDate, -30);
-  const [meals, activities, recentMeals, dishes] = await Promise.all([
+  const thisWeek = startOfWeek(startOfToday());
+  const lastWeek = addDays(thisWeek, -7);
+  const [meals, activities, recentMeals, dishes, lastReview] = await Promise.all([
     prisma.meal.findMany({
       where: { userId: user.id, date: selectedDate },
       include: { items: { include: { reference: true } } },
@@ -51,7 +53,10 @@ export default async function JourneePage({
       orderBy: { name: "asc" },
       select: { id: true, name: true, kcal: true, proteinG: true, carbG: true, fatG: true },
     }),
+    prisma.weeklyReview.findUnique({ where: { userId_weekStart: { userId: user.id, weekStart: lastWeek } } }),
   ]);
+  // Bilan de la semaine écoulée à faire (proposé dès le lundi), si le compte existait déjà.
+  const reviewPending = !lastReview && user.createdAt < thisWeek;
   const recents = buildRecents(recentMeals);
   const goal = user.goal;
 
@@ -92,6 +97,20 @@ export default async function JourneePage({
   return (
     <main className="space-y-4 p-4">
       <DaySelector date={dateParam} basePath="/" />
+
+      {reviewPending && (
+        <Link
+          href="/bilan"
+          className="flex items-center gap-3 rounded-2xl bg-indigo-50 p-3.5 text-sm text-indigo-800 ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-200 dark:ring-indigo-500/20"
+        >
+          <ClipboardList size={20} className="shrink-0" />
+          <span className="flex-1">
+            <b>Bilan de la semaine écoulée</b>
+            <br />
+            Complète les jours manquants et consulte ton récap.
+          </span>
+        </Link>
+      )}
 
       {/* En-tête dégradé : calories restantes */}
       <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-lg shadow-emerald-500/20">
@@ -220,6 +239,10 @@ export default async function JourneePage({
           );
         })}
       </div>
+
+      <Link href="/bilan" className="block text-center text-xs font-medium text-neutral-400 hover:text-emerald-600 dark:text-neutral-500">
+        Voir les bilans hebdomadaires
+      </Link>
     </main>
   );
 }
