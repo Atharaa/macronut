@@ -198,6 +198,7 @@ model Dish {
   proteinG    Float
   carbG       Float
   fatG        Float
+  fiberG      Float            @default(0)
   servings    Int?
   createdAt   DateTime         @default(now())
   items       FoodItem[]

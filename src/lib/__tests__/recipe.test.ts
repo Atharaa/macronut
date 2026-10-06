@@ -26,6 +26,6 @@ describe("perServing", () => {
       ],
       15,
     );
-    expect(p).toEqual({ kcal: 281.3, proteinG: 13.9, carbG: 51.3, fatG: 1.7 });
+    expect(p).toEqual({ kcal: 281.3, proteinG: 13.9, carbG: 51.3, fatG: 1.7, fiberG: 0.7 });
   });
 });

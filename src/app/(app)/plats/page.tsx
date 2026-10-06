@@ -41,6 +41,7 @@ export default async function PlatsPage() {
               <div className="text-[11px] text-neutral-400 dark:text-neutral-500">
                 {d.servings != null && `Recette · ${d.servings} portions · `}P {r(d.proteinG)} · G {r(d.carbG)} · L{" "}
                 {r(d.fatG)}
+                {d.servings != null && ` · F ${r(d.fiberG)}`}
               </div>
             </div>
             <span className="mr-1 text-sm font-semibold text-neutral-600 dark:text-neutral-300">{r(d.kcal)} kcal</span>

@@ -17,6 +17,7 @@ export interface PortionMacros {
   proteinG: number;
   carbG: number;
   fatG: number;
+  fiberG: number;
 }
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -44,5 +45,6 @@ export function perServing(lines: RecipeLine[], servings: number): PortionMacros
     proteinG: round1(t.proteinG / servings),
     carbG: round1(t.carbG / servings),
     fatG: round1(t.fatG / servings),
+    fiberG: round1(t.fiberG / servings),
   };
 }

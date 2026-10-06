@@ -235,14 +235,15 @@ function RecipeSummary({ lines, servings }: { lines: { per100g: Per100g; quantit
         <>
           <div className="mt-0.5 text-3xl font-bold">{r(portion.kcal)} kcal</div>
           <div className="mt-1 text-sm text-white/90">
-            P {r(portion.proteinG)} g · G {r(portion.carbG)} g · L {r(portion.fatG)} g
+            P {r(portion.proteinG)} g · G {r(portion.carbG)} g · L {r(portion.fatG)} g · F {r(portion.fiberG)} g
           </div>
         </>
       ) : (
         <div className="mt-1 text-sm text-white/90">Indique le nombre de portions.</div>
       )}
       <div className="mt-2 text-xs text-white/75">
-        Recette entière : {r(total.kcal)} kcal · P {r(total.proteinG)} · G {r(total.carbG)} · L {r(total.fatG)}
+        Recette entière : {r(total.kcal)} kcal · P {r(total.proteinG)} · G {r(total.carbG)} · L {r(total.fatG)} · F{" "}
+        {r(total.fiberG)}
       </div>
     </section>
   );

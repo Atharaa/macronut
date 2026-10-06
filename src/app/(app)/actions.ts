@@ -214,7 +214,7 @@ export async function addDishToMeal(
   });
 
   // scaleMacros raisonne en grammes pour 100 g : 1 portion = 100.
-  const m = scaleMacros({ ...dish, fiberG: 0 }, parsed.data.portions * 100);
+  const m = scaleMacros(dish, parsed.data.portions * 100);
   await prisma.foodItem.create({
     data: {
       mealId: meal.id,
