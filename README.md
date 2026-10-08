@@ -4,25 +4,25 @@ Application web personnelle de suivi nutritionnel (PWA, mobile-first).
 
 Saisis ton profil et ton objectif (perte / prise / maintien) : l'app calcule tes besoins
 en énergie et macronutriments, suit ton poids et ton activité, et te laisse enregistrer tes
-repas en **langage naturel** — l'IA découpe le message en aliments + quantités, valorisés
-via la table nutritionnelle CIQUAL.
+repas en recherchant les aliments dans la base (table nutritionnelle CIQUAL + produits
+scannés via OpenFoodFacts).
 
 ## Stack
 
 - **Next.js 15** (App Router, TypeScript), **Tailwind CSS v4** — PWA installable
 - **Prisma** + **PostgreSQL**
 - **NextAuth v5** (mono-utilisateur, credentials)
-- **Anthropic API** (`claude-haiku-4-5`, structured outputs) pour le découpage des repas
+- **OpenFoodFacts** pour les produits scannés (code-barres)
 - Base nutritionnelle **CIQUAL 2020** (ANSES)
 - **Vitest** pour les tests
 
 ## Fonctionnalités
 
 - **Objectif** : profil + objectif → besoins kcal & macros (Mifflin-St Jeor → TDEE → objectif), estimation du temps
-- **Journée** : restant du jour (kcal + macros, + bonus activité) et 5 repas avec saisie en langage naturel
+- **Journée** : restant du jour (kcal + macros, + bonus activité) et 5 repas, aliments ajoutés par recherche ou scan
 - **Poids** : saisie + graphique d'évolution
 - **Activité** : sport / pas → dépense estimée
-- Aliment inconnu → estimé par l'IA et ajouté en base, ou corrigeable à la main
+- **Aliments** : scan d'un code-barres (produit enregistré en base) et recherche dans la base
 
 ## Démarrage
 
@@ -39,7 +39,7 @@ docker run --name macronaut-pg -e POSTGRES_PASSWORD=macronaut -e POSTGRES_DB=mac
 ```bash
 cp .env.example .env
 # Renseigner DATABASE_URL, AUTH_SECRET (openssl rand -base64 32),
-# SEED_USER_EMAIL / SEED_USER_PASSWORD, ANTHROPIC_API_KEY
+# SEED_USER_EMAIL / SEED_USER_PASSWORD
 ```
 
 ### 3. Schéma + utilisateur + aliments de base

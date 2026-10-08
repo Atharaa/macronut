@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { searchFoodReferences } from "@/app/(app)/plats/actions";
+import { searchFoodReferences } from "@/app/(app)/aliments/actions";
 import type { PickedFood } from "@/lib/recipe";
 
-export function FoodSearch({ onPick }: { onPick: (food: PickedFood) => void }) {
+export function FoodSearch({
+  onPick,
+  placeholder = "Rechercher un aliment (riz, poulet…)",
+}: {
+  onPick: (food: PickedFood) => void;
+  placeholder?: string;
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PickedFood[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +48,7 @@ export function FoodSearch({ onPick }: { onPick: (food: PickedFood) => void }) {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher un aliment (riz, poulet…)"
+          placeholder={placeholder}
           className="min-w-0 flex-1 bg-transparent py-2.5 text-sm outline-none"
         />
       </div>

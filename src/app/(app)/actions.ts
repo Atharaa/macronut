@@ -1,58 +1,15 @@
 "use server";
 
-import type { MealType } from "@prisma/client";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { parseDateParam } from "@/lib/date";
-import { addFoodsFromText } from "@/lib/meal";
-import { isAiConfigured } from "@/lib/ai/parse-meal";
 import { scaleMacros } from "@/lib/macros";
 import { normalize } from "@/lib/food-search";
 import { numPositive, numMin0 } from "@/lib/validation";
 
-const MEAL_TYPES: MealType[] = [
-  "breakfast",
-  "morning_snack",
-  "lunch",
-  "afternoon_snack",
-  "dinner",
-];
-
-export type MealState = {
-  error?: string;
-  ok?: boolean;
-  estimated?: string[];
-  needsInput?: string[];
-};
-
-export async function addMeal(
-  _prev: MealState | undefined,
-  formData: FormData,
-): Promise<MealState> {
-  const user = await getCurrentUser();
-  if (!user) return { error: "Non authentifié." };
-
-  if (!isAiConfigured()) {
-    return { error: "Clé IA non configurée (ANTHROPIC_API_KEY)." };
-  }
-
-  const mealType = formData.get("mealType") as MealType | null;
-  const text = (formData.get("text") as string | null)?.trim();
-  const date = parseDateParam((formData.get("date") as string | null) || undefined);
-  if (!mealType || !MEAL_TYPES.includes(mealType)) return { error: "Repas inconnu." };
-  if (!text) return { error: "Saisie vide." };
-
-  try {
-    const result = await addFoodsFromText(user.id, date, mealType, text);
-    revalidatePath("/");
-    if (result.added === 0) return { error: "Aucun aliment détecté." };
-    return { ok: true, estimated: result.estimated, needsInput: result.needsInput };
-  } catch {
-    return { error: "Erreur lors de l'analyse. Réessaie." };
-  }
-}
+export type MealState = { error?: string; ok?: boolean };
 
 export async function deleteFoodItem(formData: FormData): Promise<void> {
   const user = await getCurrentUser();

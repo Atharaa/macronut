@@ -5,8 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { numMin0 } from "@/lib/validation";
-import { searchFoods } from "@/lib/food-search";
-import { perServing, type PickedFood, type PortionMacros } from "@/lib/recipe";
+import { perServing, type PortionMacros } from "@/lib/recipe";
 
 const dishSchema = z.object({
   name: z.string().trim().min(1),
@@ -49,19 +48,6 @@ export async function deleteDish(formData: FormData): Promise<void> {
   await prisma.dish.deleteMany({ where: { id, userId: user.id } });
   revalidatePath("/plats");
   revalidatePath("/");
-}
-
-/** Recherche d'un ingrédient par nom dans la base (CIQUAL, aliments perso, produits scannés). */
-export async function searchFoodReferences(query: string): Promise<PickedFood[]> {
-  const user = await getCurrentUser();
-  if (!user || query.trim().length < 2) return [];
-  const refs = await prisma.foodReference.findMany();
-  return searchFoods(query, refs).map((r) => ({
-    referenceId: r.id,
-    name: r.name,
-    per100g: { kcal: r.kcal, proteinG: r.proteinG, carbG: r.carbG, fatG: r.fatG, fiberG: r.fiberG },
-    servingG: null,
-  }));
 }
 
 const recipeSchema = z.object({

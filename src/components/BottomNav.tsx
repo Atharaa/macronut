@@ -2,13 +2,14 @@
 
 import Link, { useLinkStatus } from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { CalendarDays, TrendingUp, Flame, ChefHat, Target, type LucideIcon } from "lucide-react";
+import { CalendarDays, TrendingUp, Flame, ChefHat, ScanBarcode, Target, type LucideIcon } from "lucide-react";
 
 const tabs: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "Journée", icon: CalendarDays },
   { href: "/poids", label: "Poids", icon: TrendingUp },
   { href: "/activite", label: "Activité", icon: Flame },
   { href: "/plats", label: "Plats", icon: ChefHat },
+  { href: "/aliments", label: "Aliments", icon: ScanBarcode },
   { href: "/objectif", label: "Objectif", icon: Target },
 ];
 
